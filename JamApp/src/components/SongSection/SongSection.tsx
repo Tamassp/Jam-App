@@ -9,7 +9,7 @@ export interface SongSectionProps {
 const SongSection = ({ bars, ...props }: SongSectionProps): JSX.Element => {
     return (
         <View style={styles.container}>
-            {bars.map((bar, index) => (
+            {bars.length > 0 && bars.map((bar, index) => (
                 <Bar key={index} chords={bar.chords} />
             ))}
         </View>

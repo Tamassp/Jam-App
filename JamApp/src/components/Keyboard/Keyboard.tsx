@@ -1,27 +1,39 @@
 import * as React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, GestureResponderEvent, TouchableOpacityProps } from 'react-native';
 
-export interface KeyboardProps {
-
+export interface KeyboardProps /*extends TouchableOpacityProps*/ {
+    onPress: (e: GestureResponderEvent, key) => void;
 }
 
-const Keyboard = ({  }: KeyboardProps): JSX.Element => {
+const Keyboard = ({ onPress /*onPress*/ }: KeyboardProps): JSX.Element => {
 
     const majors = ['Db', 'Ab', 'Eb', 'Bb', 'F', 'C', 'G', 'D', 'A', 'E', 'B', 'F#']
     const minors = ['Ebm', 'Bbm', 'Fm', 'Cm', 'Gm', 'Dm', 'Am', 'Em', 'Bm', 'F#m', 'C#m', 'G#m']
+
+//     const handleOnPress = React.useCallback(
+//     (e: GestureResponderEvent) => {
+//       if (onPress) onPress(e)
+//     },
+//     [onPress],
+//   )
+
+    // const handleOnPress  = (e: GestureResponderEvent, key: string) => {
+    //     console.log(key);
+    //     newKeys?.push(key);
+    // }
 
     return (
         <View style={styles.container}>
             <View style={styles.row}>
                 {majors.map((major, index) => (
-                    <TouchableOpacity key={index} style={styles.key}>
+                    <TouchableOpacity onPress={(e) => onPress(e, major)} key={index} style={styles.key}>
                         <Text style={styles.text}>{major}</Text>
                     </TouchableOpacity>
                 ))}
             </View>
             <View style={styles.row}>
                 {minors.map((minor, index) => (
-                    <TouchableOpacity key={index} style={styles.key}>
+                    <TouchableOpacity onPress={(e) => onPress(e, minor)} key={index} style={styles.key}>
                         <Text style={styles.text}>{minor}</Text>
                     </TouchableOpacity>
                 ))}

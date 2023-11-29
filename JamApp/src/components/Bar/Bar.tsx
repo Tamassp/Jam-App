@@ -13,6 +13,11 @@ const Bar = ({ chords, ...props }: BarProps): JSX.Element => {
                     <Text style={styles.chordText}>{chord}</Text>
                 </View>
             ))}
+            {chords.length < 2 && 
+                <View style={styles.chord}>
+                    <Text style={styles.chordText}>{' '}</Text>
+                </View>
+            }
         </View>
     );
 };
