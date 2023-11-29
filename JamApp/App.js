@@ -2,6 +2,7 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import Bar from './src/components/Bar/Bar';
 import SongSection from './src/components/SongSection'
+import Keyboard from './src/components/Keyboard/Keyboard'
 
 
 export default function App() {
@@ -21,6 +22,7 @@ export default function App() {
           },
         ]}
       />
+      <Keyboard />
       <StatusBar style="auto" />
     </View>
   );
