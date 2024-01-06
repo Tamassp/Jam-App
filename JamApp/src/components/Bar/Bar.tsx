@@ -1,11 +1,26 @@
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
+// export interface Chord {
+//     name?: string;
+//     perBass?: string;
+//     chords?: Chord[];
+// }
+
 export interface BarProps {
-    chords: string[];
+    chords: string[] /*Chord[]*/;
+    barLength?: number;
 }
 
-const Bar = ({ chords, ...props }: BarProps): JSX.Element => {
+const Bar = ({ chords, barLength = 4, ...props }: BarProps): JSX.Element => {
+
+    if (chords.length < barLength) {
+        const initialChordsLength = chords.length;
+        for (let i = 0; i < barLength - initialChordsLength; i++) {
+            chords.push(' 1');
+        }
+    }
+
     return (
         <View style={styles.container}>
             {chords.map((chord, index) => (
@@ -15,7 +30,7 @@ const Bar = ({ chords, ...props }: BarProps): JSX.Element => {
             ))}
             {chords.length < 2 && 
                 <View style={styles.chord}>
-                    <Text style={styles.chordText}>{' '}</Text>
+                    <Text style={styles.chordText}>{' 2'}</Text>
                 </View>
             }
         </View>

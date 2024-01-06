@@ -1,24 +1,28 @@
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Bar, { BarProps } from '../Bar/Bar';
+import { LineProps } from '../Line/Line'
+import { Line } from '../Line'
 
 export interface SongSectionProps {
-    bars: BarProps[];
+    lines: LineProps[];
+    // bars: BarProps[];
+    lineLength?: number;
 }
 
-const SongSection = ({ bars, ...props }: SongSectionProps): JSX.Element => {
+const SongSection = ({ lines = [], lineLength = 4, ...props }: SongSectionProps): JSX.Element => {
     return (
         <View style={styles.container}>
-            {bars.length > 0 && bars.map((bar, index) => (
-                <Bar key={index} chords={bar.chords} />
-            ))}
+                {lines.length > 0 && lines.map((line, index) => (
+                    <Line key={index} bars={line.bars} />
+                ))}
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: 'row',
+        flexDirection: 'column',
         justifyContent: 'space-between',
         borderLeftWidth: 2,
     },
@@ -29,6 +33,11 @@ const styles = StyleSheet.create({
     },
     barText: {
         fontSize: 10,
+    },
+    line: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        borderRightWidth: 1,
     },
 });
 
