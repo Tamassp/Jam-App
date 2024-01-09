@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import Chord from '../Chord'
+import { ChordProps } from '../Chord/Chord'
 
 // export interface Chord {
 //     name?: string;
@@ -8,34 +10,56 @@ import { View, Text, StyleSheet } from 'react-native';
 // }
 
 export interface BarProps {
-    chords: string[] /*Chord[]*/;
+    barId: string;
+    chords: ChordProps[] /*Chord[]*/;
     barLength?: number;
+    newChord?: string;
 }
 
-const Bar = ({ chords, barLength = 4, ...props }: BarProps): JSX.Element => {
+const Bar = React.memo( function Bar ({
+    barId,
+    chords, 
+    barLength, 
+    newChord,
+     ...props 
+}: BarProps): JSX.Element {
+    barLength = barLength || 4;
+    const addNewChord = () => {
+        if (newChord) {
+            console.log('newChord', newChord);
+            
+            // chords.push(newChord);
+        }
+    }
+
+    // React.useEffect
+    // (() => {
+    //     addNewChord();
+    // }, [newChord]);
 
     if (chords.length < barLength) {
         const initialChordsLength = chords.length;
         for (let i = 0; i < barLength - initialChordsLength; i++) {
-            chords.push(' 1');
+            // chords.push(' 1');
         }
     }
+
+    React.useLayoutEffect(() => {
+        console.log('BarID', barId);
+    }, [barId])
+        
 
     return (
         <View style={styles.container}>
             {chords.map((chord, index) => (
-                <View key={index} style={styles.chord}>
-                    <Text style={styles.chordText}>{chord}</Text>
-                </View>
+                <Chord key={index} chordId={barId + index} name={chord.name} />
             ))}
-            {chords.length < 2 && 
-                <View style={styles.chord}>
-                    <Text style={styles.chordText}>{' 2'}</Text>
-                </View>
-            }
+            {/* {chords.length < 2 && 
+                <Chord name=' 1' />
+            } */}
         </View>
     );
-};
+});
 
 const styles = StyleSheet.create({
     container: {
@@ -43,14 +67,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         borderRightWidth: 1,
     },
-    chord: {
-        // backgroundColor: '#f0f0f0',
-        // borderRadius: 5,
-        padding: 5,
-    },
-    chordText: {
-        fontSize: 10,
-    },
+    
 });
 
 export default Bar;

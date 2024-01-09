@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FocusProvider } from './src/context/FocusContext';
 import Bar from './src/components/Bar/Bar';
 import SongSection from './src/components/SongSection'
 import Keyboard from './src/components/Keyboard/Keyboard'
@@ -20,8 +21,16 @@ export default function App() {
   const [lines, setLines] = useState([])
   const [newLine, setNewLine] = useState({bars: []})
 
-  const song = {
+  const [newChord, setNewChord] = useState('')
+
+  const [barIndex, setBarIndex] = useState(0)
+  const [lineIndex, setLineIndex] = useState(0)
+
+
+  const [song, setSong] = useState(
+    {
     songSection: {
+      backgroundColor: '#aaffaa',
       lines: [
         {
           bars: [
@@ -60,23 +69,26 @@ export default function App() {
     key: 'C',
     tempo: 120
   }
+  )
 
   useLayoutEffect(() => {
     setLines([...lines, {bars: bars}])
   }, [])
 
-  const handleKey = (e , key) => {
-    console.log(key);
-    setKeys([...keys, key])
-  }
+  // const handleKey = (e , key) => {
+  //   // console.log(key);
+  //   // setKeys([...keys, key])
+  //   setNewChord(key)
+  // }
 
   useEffect(() => {
-    console.log(keys);
-    console.log(keys[keys.length - 1]);
+    // console.log(keys);
+    // console.log(keys[keys.length - 1]);
     // if(bars.length === 0) {
     //   setLines([...lines, {bars: bars}])
     // }
     setBars([...bars, {chords: [keys[keys.length - 1]]}])
+
     // setNewLine({ bars: [...newLine.bars, {chords: [keys[keys.length - 1]]}]})
     
   }
@@ -84,24 +96,28 @@ export default function App() {
 
   useEffect(() => {
     if(bars.length > 3) {
-      setLines([...lines, {bars: bars}])
+      const tempLines = lines.slice(0, -1)
+      setLines([...tempLines, {bars: bars}, newLine])
       setBars([])
     }
   }
   , [bars])
 
-  // useEffect(() => {
-  //   console.log(lines);
-  // }
-  // , [lines])
+  useEffect(() => {
+    console.log(lines);
+  }
+  , [lines])
   
   const handleNewLine = (e) => {
     // setNewLine({bars: []})
-    console.log(newLine);
+    // console.log(newLine);
     setLines([...lines, newLine])
   }
 
+  
+
   return (
+    <FocusProvider>
     <View style={styles.container}>
       <Text>Open up App.js to start working on your app!</Text>
       <Text>Open up App.js to start work app!</Text>
@@ -110,14 +126,16 @@ export default function App() {
       <Line bars={bars} /> */}
       {/* <SongSection
         lines={lines || []}
+        newChord={newChord}
       /> */}
       <TouchableOpacity onPress={(e)=> handleNewLine(e)}>
         <Text>new line</Text>
       </TouchableOpacity>
-      <SongEditor />
-      <Keyboard onPress={handleKey} />
+      <SongEditor song={song} />
+      {/* <Keyboard onPress={handleKey} /> */}
       <StatusBar style="auto" />
     </View>
+    </FocusProvider>
   );
 }
 

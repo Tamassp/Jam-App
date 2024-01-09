@@ -5,16 +5,29 @@ import { LineProps } from '../Line/Line'
 import { Line } from '../Line'
 
 export interface SongSectionProps {
+    songSectionId: string;
     lines: LineProps[];
+    backgroundColor?: string;
     // bars: BarProps[];
     lineLength?: number;
+    newChord?: string;
 }
 
-const SongSection = ({ lines = [], lineLength = 4, ...props }: SongSectionProps): JSX.Element => {
+const SongSection = ({ 
+    songSectionId,
+    lines = [], 
+    backgroundColor = '#aaaaff', 
+    lineLength = 4, 
+    newChord, 
+    ...props }: SongSectionProps): JSX.Element => {
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, {backgroundColor}]}>
                 {lines.length > 0 && lines.map((line, index) => (
-                    <Line key={index} bars={line.bars} />
+                    <Line 
+                        lineId={songSectionId + index}
+                        key={index} 
+                        bars={line.bars} 
+                        newChord={newChord} />
                 ))}
         </View>
     );

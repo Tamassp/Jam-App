@@ -5,22 +5,24 @@ export interface IChord {
 }
 
 export interface IBar {
-    number: number;
+    number?: number;
     chords: IChord[];
 }
 
 export interface ILine {
-    number: number;
-    lineLength: number;
+    number?: number;
+    lineLength?: number;
     bars: IBar[];
 }
 
 export interface ISongSection {
-    name: string;
+    backgroundColor: string;
+    name?: string;
     lines: ILine[];
 }
 
 export interface ISong {
     title: string;
+    author?: string;
     sections: ISongSection[];
 }

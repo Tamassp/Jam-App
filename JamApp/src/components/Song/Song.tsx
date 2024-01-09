@@ -21,10 +21,18 @@ const Song = ({
            <Text>Title: {title}</Text>
             <Text>Artist: {artist}</Text>
             {songSections.map((songSection, index) => (
-                <SongSection key={index} lines={songSection.lines} />
+                <SongSection 
+                    songSectionId={index.toString()}
+                    key={index}
+                    backgroundColor={songSection.backgroundColor} 
+                    lines={songSection.lines} />
             ))}
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+    
+});
 
 export default Song;

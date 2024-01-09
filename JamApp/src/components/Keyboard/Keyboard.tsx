@@ -7,8 +7,8 @@ export interface KeyboardProps /*extends TouchableOpacityProps*/ {
 
 const Keyboard = ({ onPress /*onPress*/ }: KeyboardProps): JSX.Element => {
 
-    const majors = ['Db', 'Ab', 'Eb', 'Bb', 'F', 'C', 'G', 'D', 'A', 'E', 'B', 'F#']
-    const minors = ['Ebm', 'Bbm', 'Fm', 'Cm', 'Gm', 'Dm', 'Am', 'Em', 'Bm', 'F#m', 'C#m', 'G#m']
+    const majors = ['Db', 'Ab', 'Eb', 'Bb', 'F', 'C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Back']
+    const minors = ['Ebm', 'Bbm', 'Fm', 'Cm', 'Gm', 'Dm', 'Am', 'Em', 'Bm', 'F#m', 'C#m', 'G#m', 'Mpty']
 
 //     const handleOnPress = React.useCallback(
 //     (e: GestureResponderEvent) => {
