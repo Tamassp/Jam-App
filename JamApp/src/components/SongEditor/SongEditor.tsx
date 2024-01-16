@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
 import { SongSectionProps } from '../SongSection/SongSection'
 import Song, { SongProps } from '../Song/Song'
 import { ISong, ISongSection } from '../../interfaces/Interfaces'
@@ -8,18 +8,22 @@ import { BarProps } from '../Bar/Bar'
 import { LineProps } from '../Line/Line'
 import { useFocus } from '../../context/FocusContext'
 import { useImmer } from "use-immer";
+import Button from '../Button/Button'
+import { ChordProps } from '../Chord/Chord'
 
 interface SongEditorProps {
     song: SongProps[];
+    isEditing?: boolean;
 }
 
 const SongEditor: React.FC<SongEditorProps> = ({ 
     song= [],
+    isEditing = true,
 }: SongEditorProps): JSX.Element => { 
 
     const dummySongSections: ISongSection[] = [
         {
-            backgroundColor: '#aaaaaa',
+            backgroundColor: '',
             lines: [
                  {
                     bars: [
@@ -190,7 +194,7 @@ const SongEditor: React.FC<SongEditorProps> = ({
             author: 'The Worst Author',
             sections: [
                 {
-                    backgroundColor: '#aaaaaa',
+                    backgroundColor: '',
                     lines: [
                     {
                         bars: [
@@ -279,13 +283,15 @@ const SongEditor: React.FC<SongEditorProps> = ({
     // useEffect(() => {
     //     setSong(...song, songSection.at(-1).lines.at(-1).bars.at(-1).chords.push(newChord))
     // }, [newChord])
+    const lineLength = 4;
+    const barLength = 4;
 
     const [bars, setBars] = useState<BarProps[]>([]);
     const [lines, setLines] = useState<LineProps[]>([]);
 
-    const [newBar, setNewBar] = useState<BarProps>({chords: ['']});
-    const [newLine, setNewLine] = useState<BarProps[]>([]);
-    const [newSongSection, setNewSongSection] = useState<SongSectionProps>({lines: [newLine]});
+    const [newBar, setNewBar] = useState<ChordProps[]>({name: ['']});
+    const [newLine, setNewLine] = useState<BarProps[]>([newBar]);
+    const [newSongSection, setNewSongSection] = useState<SongSectionProps>({songSectionId: '1', lines: []});
 
     const [chordIndex, setChordIndex] = useState<number>(0);
     const [barIndex, setBarIndex] = useState<number>(0);
@@ -296,6 +302,14 @@ const SongEditor: React.FC<SongEditorProps> = ({
     const [newChord, setNewChord] = useState<string>('');
 
     const { focusedId, handleFocus } = useFocus();
+
+    // const emptyLine = {bars: [{chords: [{name: '_'}]}]};
+    const placeholderLine = {bars: [
+        {chords: [{name: '_'}, {name: '_'}, {name: '_'}, {name: '_'}]},
+        {chords: [{name: '_'}, {name: '_'}, {name: '_'}, {name: '_'}]},
+        {chords: [{name: '_'}, {name: '_'}, {name: '_'}, {name: '_'}]},
+        {chords: [{name: '_'}, {name: '_'}, {name: '_'}, {name: '_'}]},
+    ]};
     
     const handleKey = (e , key) => {
         //Using the ids, we can determine where to add the new chord
@@ -311,8 +325,9 @@ const SongEditor: React.FC<SongEditorProps> = ({
         // tempSongSections[0].lines = nextLines;
 
         // setSongSections2(tempSongSections);
+        console.log("FOCUSEDID", focusedId);
         
-        
+        if(focusedId === null) return;
         
         //USING USE-IMMER INSTEAD
         console.log("INDEXES", sectionIndex, lineIndex, barIndex, chordIndex);
@@ -322,6 +337,40 @@ const SongEditor: React.FC<SongEditorProps> = ({
             
             draft.sections[sectionIndex].lines[lineIndex].bars[barIndex].chords[chordIndex].name = key;
         });
+
+        // const [isLastChord,set] = (chordIndex === barLength-1);
+        // const [isLastBar] = (barIndex === lineLength-1);
+
+        console.log("FocusedIDDDDDD", focusedId);
+        
+        console.log("FI", focusedId.slice(2,3));
+        if((focusedId.slice(3,4) === (barLength-1).toString()) &&
+        (focusedId.slice(2,3) === (lineLength-1).toString())) {
+            console.log("LAST CHORD, LAST BAR");
+            
+            //Increasing line index
+            const tempStr = focusedId.slice(0,1);
+            const increasedStr = (parseInt(focusedId.slice(1,2)) + 1).toString();
+            //Increasing focus ID for the next line
+            handleFocus(tempStr + increasedStr + '00');
+        }
+        //Increasing bar index
+        else if(focusedId.slice(3,4) === (barLength-1).toString()) {
+            console.log("BARLENGTH", barLength);
+            
+            //Increasing bar index
+            const tempStr = focusedId.slice(0,2);
+            const increasedStr = (parseInt(focusedId.slice(2,3)) + 1).toString();
+            
+            handleFocus(tempStr + increasedStr + '0');
+        }
+        //Increasing chord index
+        else {
+            const tempStr = focusedId.slice(0,3);
+            const increasedStr = (parseInt(focusedId.slice(3,4)) + 1).toString();
+            //Increasing focus ID for the next chord
+            handleFocus(tempStr + increasedStr);
+        }
     }
 
     useEffect(() => {
@@ -369,21 +418,65 @@ const SongEditor: React.FC<SongEditorProps> = ({
     // }
     // , [lines]);
     
+    const handleNewLine = (sectionI: number) => {
+        console.log("NEW LINE: ", newLine);
+        
+        updateSongg(draft => {
+            draft.sections[sectionI].lines.push(placeholderLine);
+        });
+    };
 
+    // useEffect(() => {
+    //     //print the whole song
+    //     for(let i = 0; i < songg.sections.length; i++) {
+    //         for(let j = 0; j < songg.sections[i].lines.length; j++) {
+    //             for(let k = 0; k < songg.sections[i].lines[j].bars.length; k++) {
+    //                 for(let l = 0; l < songg.sections[i].lines[j].bars[k].chords.length; l++) {
+    //                     console.log("CHORD: ", songg.sections[i].lines[j].bars[k].chords[l].name);
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+    // , [songg]);
    
+    const handleNewSection = () => {
+        console.log("NEW SECTION");
+        updateSongg(draft => {
+            draft.sections.push(newSongSection);
+        });
+        handleNewLine(sectionIndex+1);
+        setSectionIndex(sectionIndex + 1);
 
+    }
     
 
    
 
     return (
         <View style={styles.container}>
+            <TouchableOpacity onPress={(e)=> handleNewLine(e)}>
+                <Text>new line</Text>
+            </TouchableOpacity>
             <Song title='The Best Title' artist="The Best Artist" songSections={songg.sections} />
-            <Keyboard onPress={handleKey} />
+            {isEditing && 
+            <View style={styles.newSection}>
+                <Button onPress={handleNewSection}>New Section</Button>
+            </View>
+            }
+            <View style={styles.keyboard}>
+                <Keyboard onPress={handleKey} />
+            </View>
 
         </View>
     );
 };
+
+export interface SongEditornStyles {
+    container: ViewStyle;
+    keyboard: ViewStyle;
+    newSection: ViewStyle;
+}
 
 const styles = StyleSheet.create({
     container: {
@@ -392,6 +485,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
+    keyboard: {
+        position: 'absolute',
+        bottom: 10,
+    },
+    newSection: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop: 16,
+    }
 });
 
 export default SongEditor;

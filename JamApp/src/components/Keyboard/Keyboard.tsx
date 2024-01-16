@@ -7,6 +7,9 @@ export interface KeyboardProps /*extends TouchableOpacityProps*/ {
 
 const Keyboard = ({ onPress /*onPress*/ }: KeyboardProps): JSX.Element => {
 
+    // The keyboard can change slitely depending on the chosen key
+    // The less sharps or flats the better (F#/Gb, G#m/Abm, etc.)
+
     const majors = ['Db', 'Ab', 'Eb', 'Bb', 'F', 'C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Back']
     const minors = ['Ebm', 'Bbm', 'Fm', 'Cm', 'Gm', 'Dm', 'Am', 'Em', 'Bm', 'F#m', 'C#m', 'G#m', 'Mpty']
 
