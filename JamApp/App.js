@@ -7,6 +7,8 @@ import Keyboard from './src/components/Keyboard/Keyboard'
 import Line from './src/components/Line/Line'
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import SongEditor from './src/components/SongEditor/SongEditor'
+import MenuBar from './src/components/MenuBar/MenuBar';
+import Main from './src/pages/Main'
 
 // type Song = {
 //   songSection: SongSectionProps
@@ -16,7 +18,7 @@ import SongEditor from './src/components/SongEditor/SongEditor'
 
 export default function App() {
 
-
+  
 
   const [song, setSong] = useState(
     {
@@ -26,16 +28,16 @@ export default function App() {
         {
           bars: [
             {
-              chords: ['C', 'Am']
+              chords: ['_', '_']
             },
             {
-              chords: ['C', 'Am']
+              chords: ['_', '_']
             },
             {
-              chords: ['C', 'Am']
+              chords: ['_', '_']
             },
             {
-              chords: ['C', 'Am']
+              chords: ['_', '_']
             }
           ]
         },
@@ -61,29 +63,22 @@ export default function App() {
     tempo: 120
   }
   )
-
-  
-  
-
   
 
   return (
     <FocusProvider>
-    <View style={styles.container}>
-      {/* <Text>Open up App.js to start working on your app!</Text>
-      <Text>Open up App.js to start work app!</Text> */}
-      <SongEditor song={song} />
-      <StatusBar style="auto" />
-    </View>
+      <Main />
     </FocusProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: '100%',
+    height: '100%',
+    // flex: 1,
+    // backgroundColor: '#fff',
+    // alignItems: 'center',
+    // justifyContent: 'center',
   },
 });

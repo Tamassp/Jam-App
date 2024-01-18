@@ -10,24 +10,36 @@ import { useFocus } from '../../context/FocusContext'
 import { useImmer } from "use-immer";
 import Button from '../Button/Button'
 import { ChordProps } from '../Chord/Chord'
+import MenuBar from '../MenuBar/MenuBar'
 
 interface SongEditorProps {
-    song: SongProps[];
+    // song: ISong;
     isEditing?: boolean;
 }
 
 const SongEditor: React.FC<SongEditorProps> = ({ 
-    song= [],
+    // song,
     isEditing = true,
 }: SongEditorProps): JSX.Element => { 
+    const emptySong: ISong = {
+        title: '',
+        author: '',
+        sections: [],
+    }
 
-    const dummySongSections: ISongSection[] = [
-        {
-            backgroundColor: '',
-            lines: [
-                 {
+
+    const testSong: ISong = 
+    {
+        title: 'The Worst Title',
+        author: 'The Worst Author',
+        sections: [
+            {
+                backgroundColor: '#aaaaaa',
+                lines: [
+                {
                     bars: [
-                        {chords: [
+                    {
+                        chords: [
                             {
                                 name: 'C',
                             },
@@ -40,240 +52,67 @@ const SongEditor: React.FC<SongEditorProps> = ({
                             {
                                 name: 'F',
                             },
-
-                        ]},
-                        
-                    ],
-                },
-                {
-                    bars: [
-                        {
-                            chords: [
-                                {
-                                    name: 'G',
-                                },
-                                {
-                                    name: 'A',
-                                },
-                                {
-                                    name: 'B',
-                                },
-                                {
-                                    name: 'C',
-                                },
-                            ]
-                        },
-                        {
-                            chords: [
-                                {
-                                    name: 'G',
-                                },
-                                {
-                                    name: 'A',
-                                },
-                                {
-                                    name: 'B',
-                                },
-                                {
-                                    name: 'C',
-                                },
-                            ]
-                        },
-                        {
-                            chords: [
-                                {
-                                    name: 'G',
-                                },
-                                {
-                                    name: 'A',
-                                },
-                                {
-                                    name: 'B',
-                                },
-                                {
-                                    name: 'C',
-                                },
-                            ]
-                        },
-                        {
-                            chords: [
-                                {
-                                    name: 'G',
-                                },
-                                {
-                                    name: 'A',
-                                },
-                                {
-                                    name: 'B',
-                                },
-                                {
-                                    name: 'C',
-                                },
-                            ]
-                        },
-  
-                    ],
-                },
-                {
-                    bars: [
-                        {
-                            chords: [
-                                {
-                                    name: 'G',
-                                },
-                                {
-                                    name: 'A',
-                                },
-                                {
-                                    name: 'B',
-                                },
-                                {
-                                    name: 'C',
-                                },
-                            ]
-                        },
-                        {
-                            chords: [
-                                {
-                                    name: 'G',
-                                },
-                                {
-                                    name: 'A',
-                                },
-                                {
-                                    name: 'B',
-                                },
-                                {
-                                    name: 'C',
-                                },
-                            ]
-                        },
-                        {
-                            chords: [
-                                {
-                                    name: 'G',
-                                },
-                                {
-                                    name: 'A',
-                                },
-                                {
-                                    name: 'B',
-                                },
-                                {
-                                    name: 'C',
-                                },
-                            ]
-                        },
-                        {
-                            chords: [
-                                {
-                                    name: 'G',
-                                },
-                                {
-                                    name: 'A',
-                                },
-                                {
-                                    name: 'B',
-                                },
-                                {
-                                    name: 'C',
-                                },
-                            ]
-                        },  
-                    ],
-                },
-            ],
-        },
-    ];
-
-    const [songSections2, setSongSections2] = useState<ISongSection[]>(dummySongSections);
-
-    const testSong: ISong = 
-    {
-            title: 'The Worst Title',
-            author: 'The Worst Author',
-            sections: [
-                {
-                    backgroundColor: '',
-                    lines: [
-                    {
-                        bars: [
-                        {
-                            chords: [
-                                {
-                                    name: 'C',
-                                },
-                                {
-                                    name: 'G',
-                                },
-                                {
-                                    name: 'E',
-                                },
-                                {
-                                    name: 'F',
-                                },
-                            ]
-                        },
-                        {
-                            chords: [
-                                {
-                                    name: 'Gm',
-                                },
-                                {
-                                    name: 'Gm',
-                                },
-                                {
-                                    name: 'Em',
-                                },
-                                {
-                                    name: 'Fm',
-                                },
-                            ]
-                        },
                         ]
                     },
-                     {
-                        bars: [
-                        {
-                            chords: [
-                                {
-                                    name: 'C',
-                                },
-                                {
-                                    name: 'G',
-                                },
-                                {
-                                    name: 'E',
-                                },
-                                {
-                                    name: 'F',
-                                },
-                            ]
-                        },
-                        {
-                            chords: [
-                                {
-                                    name: 'Gm',
-                                },
-                                {
-                                    name: 'Gm',
-                                },
-                                {
-                                    name: 'Em',
-                                },
-                                {
-                                    name: 'Fm',
-                                },
-                            ]
-                        },
+                    {
+                        chords: [
+                            {
+                                name: 'Gm',
+                            },
+                            {
+                                name: 'Gm',
+                            },
+                            {
+                                name: 'Em',
+                            },
+                            {
+                                name: 'Fm',
+                            },
                         ]
                     },
                     ]
-                }
-            ]
+                },
+                    {
+                    bars: [
+                    {
+                        chords: [
+                            {
+                                name: 'C',
+                            },
+                            {
+                                name: 'G',
+                            },
+                            {
+                                name: 'E',
+                            },
+                            {
+                                name: 'F',
+                            },
+                        ]
+                    },
+                    {
+                        chords: [
+                            {
+                                name: 'Gm',
+                            },
+                            {
+                                name: 'Gm',
+                            },
+                            {
+                                name: 'Em',
+                            },
+                            {
+                                name: 'Fm',
+                            },
+                        ]
+                    },
+                    ]
+                },
+                ]
+            }
+        ]
 
-        }
-
+    }
 
     const [songg, updateSongg] = useImmer<ISong>(testSong);
 
@@ -385,38 +224,6 @@ const SongEditor: React.FC<SongEditorProps> = ({
         // console.log("BARINDEX", barIndex);
     }, [focusedId])
 
-    useEffect(() => {
-        console.log("SETNEWSECTION2", songSections2[0].lines[0].bars[0].chords[0].name);
-    }
-    , [songSections2]);
-
-    //  useEffect(() => {
-    //     // setNewBar({chords: [newChord]});
-        
-    //     const tempBar = {chords: [newChord]};
-    //     setNewLine([...newLine, tempBar]);        
-        
-    // }, [newChord]);
-
-
-    // useEffect (() => {
-    //     console.log("NEW LINE: ", newLine);
-    //     if(newLine.length === 4) {
-    //         // setLineIndex(lineIndex + 1);
-    //         setLines([...lines, {bars: newLine}]);
-    //     }
-    // }
-    // , [newLine]);
-
-    // useEffect(() => {
-    //     console.log("LINES: ", lines);
-    //     // if(lines.length === 4) {
-    //     //     setSongSections([...songSections, {lines}]);
-    //     //     setLines([]);
-    //     // }
-    //     setNewLine([]);
-    // }
-    // , [lines]);
     
     const handleNewLine = (sectionI: number) => {
         console.log("NEW LINE: ", newLine);
@@ -439,6 +246,7 @@ const SongEditor: React.FC<SongEditorProps> = ({
     //     }
     // }
     // , [songg]);
+
    
     const handleNewSection = () => {
         console.log("NEW SECTION");
@@ -449,16 +257,25 @@ const SongEditor: React.FC<SongEditorProps> = ({
         setSectionIndex(sectionIndex + 1);
 
     }
-    
 
-   
+    
+    
+    
+    const handleNewSong = () => {
+        //Initialize new song
+        updateSongg(emptySong);
+        // console.log('New song');
+        // console.log(song.title);
+        
+        }
 
     return (
         <View style={styles.container}>
+            <MenuBar onNewSheet={handleNewSong}/>
             <TouchableOpacity onPress={(e)=> handleNewLine(e)}>
                 <Text>new line</Text>
             </TouchableOpacity>
-            <Song title='The Best Title' artist="The Best Artist" songSections={songg.sections} />
+            <Song title={songg.title} artist={songg.author} songSections={songg.sections} />
             {isEditing && 
             <View style={styles.newSection}>
                 <Button onPress={handleNewSection}>New Section</Button>
