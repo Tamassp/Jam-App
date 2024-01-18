@@ -11,6 +11,7 @@ import { useImmer } from "use-immer";
 import Button from '../Button/Button'
 import { ChordProps } from '../Chord/Chord'
 import MenuBar from '../MenuBar/MenuBar'
+import { useSongContext } from '../../context/SongContext/SongContext';
 
 interface SongEditorProps {
     // song: ISong;
@@ -28,100 +29,8 @@ const SongEditor: React.FC<SongEditorProps> = ({
     }
 
 
-    const testSong: ISong = 
-    {
-        title: 'The Worst Title',
-        author: 'The Worst Author',
-        sections: [
-            {
-                backgroundColor: '#aaaaaa',
-                lines: [
-                {
-                    bars: [
-                    {
-                        chords: [
-                            {
-                                name: 'C',
-                            },
-                            {
-                                name: 'G',
-                            },
-                            {
-                                name: 'E',
-                            },
-                            {
-                                name: 'F',
-                            },
-                        ]
-                    },
-                    {
-                        chords: [
-                            {
-                                name: 'Gm',
-                            },
-                            {
-                                name: 'Gm',
-                            },
-                            {
-                                name: 'Em',
-                            },
-                            {
-                                name: 'Fm',
-                            },
-                        ]
-                    },
-                    ]
-                },
-                    {
-                    bars: [
-                    {
-                        chords: [
-                            {
-                                name: 'C',
-                            },
-                            {
-                                name: 'G',
-                            },
-                            {
-                                name: 'E',
-                            },
-                            {
-                                name: 'F',
-                            },
-                        ]
-                    },
-                    {
-                        chords: [
-                            {
-                                name: 'Gm',
-                            },
-                            {
-                                name: 'Gm',
-                            },
-                            {
-                                name: 'Em',
-                            },
-                            {
-                                name: 'Fm',
-                            },
-                        ]
-                    },
-                    ]
-                },
-                ]
-            }
-        ]
+    const {song, setSong, saveSong, loadSong} = useSongContext();
 
-    }
-
-    const [songg, updateSongg] = useImmer<ISong>(testSong);
-
-    // const [song, setSong]:ISong = useState();
-
-
-    // useEffect(() => {
-    //     setSong(...song, songSection.at(-1).lines.at(-1).bars.at(-1).chords.push(newChord))
-    // }, [newChord])
     const lineLength = 4;
     const barLength = 4;
 
@@ -136,7 +45,6 @@ const SongEditor: React.FC<SongEditorProps> = ({
     const [barIndex, setBarIndex] = useState<number>(0);
     const [lineIndex, setLineIndex] = useState<number>(0);
     const [sectionIndex, setSectionIndex] = useState<number>(0);
-
 
     const [newChord, setNewChord] = useState<string>('');
 
@@ -153,27 +61,15 @@ const SongEditor: React.FC<SongEditorProps> = ({
     const handleKey = (e , key) => {
         //Using the ids, we can determine where to add the new chord
 
-        // WITH SPREAD OPERATOR IT IS NOT OPTIMAL
-        // const nextChords = [...tempSongSections[0].lines[0].bars[0].chords, {name: key}];
-        // console.log('nextChords', nextChords);
-        
-        // const nextBars = [...tempSongSections[0].lines[0].bars, {chords: nextChords}];
-        // console.log('nextBars', nextBars);
-        
-        // const nextLines = [...tempSongSections[0].lines, {bars: nextBars}];
-        // tempSongSections[0].lines = nextLines;
-
-        // setSongSections2(tempSongSections);
-        console.log("FOCUSEDID", focusedId);
+        // WITH NESTED SPREAD OPERATOR IT IS NOT OPTIMAL, THEREFORE USEIMMER IS USED
         
         if(focusedId === null) return;
         
         //USING USE-IMMER INSTEAD
         console.log("INDEXES", sectionIndex, lineIndex, barIndex, chordIndex);
         
-        updateSongg(draft => {
-            console.log("DRAFT", songg.sections[0].lines[0].bars[0].chords[0].name);
-            
+        setSong(draft => {
+            console.log("DRAFTTTT", song.sections[0].lines[0].bars[0].chords[0].name);
             draft.sections[sectionIndex].lines[lineIndex].bars[barIndex].chords[chordIndex].name = key;
         });
 
@@ -227,8 +123,9 @@ const SongEditor: React.FC<SongEditorProps> = ({
     
     const handleNewLine = (sectionI: number) => {
         console.log("NEW LINE: ", newLine);
-        
-        updateSongg(draft => {
+    
+        setSong(draft => {
+            console.log("HEYY");
             draft.sections[sectionI].lines.push(placeholderLine);
         });
     };
@@ -250,7 +147,7 @@ const SongEditor: React.FC<SongEditorProps> = ({
    
     const handleNewSection = () => {
         console.log("NEW SECTION");
-        updateSongg(draft => {
+        setSong(draft => {
             draft.sections.push(newSongSection);
         });
         handleNewLine(sectionIndex+1);
@@ -263,19 +160,33 @@ const SongEditor: React.FC<SongEditorProps> = ({
     
     const handleNewSong = () => {
         //Initialize new song
-        updateSongg(emptySong);
-        // console.log('New song');
-        // console.log(song.title);
+        loadSong()
+    }
+
+    const handleOnSave = () => {
+        console.log("SAVING SONG");
+        setSong(draft => {
+            draft.title = 'New Title';
+        });
         
-        }
+        console.log(JSON.stringify(song));
+        saveSong();
+    }
+
+    const handleOnExport = () => {
+        console.log("EXPORTING SONG");
+        setSong(draft => {
+            draft.title = 'New Title222';
+        });
+    }
 
     return (
         <View style={styles.container}>
-            <MenuBar onNewSheet={handleNewSong}/>
+            <MenuBar onNewSheet={handleNewSong} onSave={handleOnSave} onExport={handleOnExport} />
             <TouchableOpacity onPress={(e)=> handleNewLine(e)}>
                 <Text>new line</Text>
             </TouchableOpacity>
-            <Song title={songg.title} artist={songg.author} songSections={songg.sections} />
+            <Song title={song.title} artist={song.author} songSections={song.sections} />
             {isEditing && 
             <View style={styles.newSection}>
                 <Button onPress={handleNewSection}>New Section</Button>

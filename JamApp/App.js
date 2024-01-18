@@ -9,6 +9,7 @@ import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import SongEditor from './src/components/SongEditor/SongEditor'
 import MenuBar from './src/components/MenuBar/MenuBar';
 import Main from './src/pages/Main'
+import { SongProvider } from './src/context/SongContext/SongContext'
 
 // type Song = {
 //   songSection: SongSectionProps
@@ -66,9 +67,12 @@ export default function App() {
   
 
   return (
-    <FocusProvider>
-      <Main />
-    </FocusProvider>
+    <SongProvider>
+      <FocusProvider>
+        <Main />
+      </FocusProvider>
+    </SongProvider>
+
   );
 }
 
