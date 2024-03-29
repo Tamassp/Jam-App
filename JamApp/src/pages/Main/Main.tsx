@@ -6,6 +6,7 @@ import SongEditor from '../../components/SongEditor/SongEditor'
 import { StatusBar } from 'expo-status-bar';
 import { ISong } from '../../interfaces/Interfaces'
 import { useImmer } from "use-immer";
+import ChartList from '../../components/ChartList'
 
 
 
@@ -133,16 +134,25 @@ const Main = ({
             {song &&
                 <SongEditor  />
             }
+            <ChartList style={styles.chartList} />
             <StatusBar style="auto" />
         </View>
     );
 }
 
 export interface MainStyles {
-   wrapper: ViewStyle;
+    chartList: ViewStyle;
+    wrapper: ViewStyle;
 }
 
 const styles = StyleSheet.create({
+    chartList: {
+        position: 'absolute',
+        top: 24,
+        left: 24,
+        zIndex: 1,
+        margin: 16,
+    },
     wrapper: {
         width: '100%',
         height: '100%',
