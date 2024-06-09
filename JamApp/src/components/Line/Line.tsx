@@ -28,9 +28,9 @@ const Line = ({
     return (
         <View style={styles.container}>
             {bars.map((bar, index) => (
-                <View key={index} style={styles.bar}>
+                // <View key={index} style={styles.bar}>
                     <Bar barId={lineId + index} chords={bar.chords} newChord={newChord} />
-                </View>
+                // </View>
             ))}
 
 
@@ -43,6 +43,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         borderLeftWidth: 2,
+        flexWrap: 'wrap',
     },
     bar: {
         // backgroundColor: '#f0f0f0',

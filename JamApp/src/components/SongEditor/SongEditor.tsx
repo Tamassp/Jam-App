@@ -182,11 +182,13 @@ const SongEditor: React.FC<SongEditorProps> = ({
 
     return (
         <View style={styles.container}>
-            <MenuBar onNewSheet={handleNewSong} onSave={handleOnSave} onExport={handleOnExport} />
-            <TouchableOpacity onPress={(e)=> handleNewLine(e)}>
+            {/* <MenuBar onNewSheet={handleNewSong} onSave={handleOnSave} onExport={handleOnExport} /> */}
+            {/* <TouchableOpacity onPress={(e)=> handleNewLine(e)}>
                 <Text>new line</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
+            
             <Song title={song.title} artist={song.author} songSections={song.sections} />
+            
             {isEditing && 
             <View style={styles.newSection}>
                 <Button onPress={handleNewSection}>New Section</Button>
@@ -211,7 +213,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         alignItems: 'center',
-        justifyContent: 'center',
+        // justifyContent: 'center',
     },
     keyboard: {
         position: 'absolute',

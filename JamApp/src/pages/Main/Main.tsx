@@ -134,7 +134,7 @@ const Main = ({
             {song &&
                 <SongEditor  />
             }
-            <ChartList style={styles.chartList} />
+            {/* <ChartList style={styles.chartList} /> */}
             <StatusBar style="auto" />
         </View>
     );

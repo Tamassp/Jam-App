@@ -1,7 +1,29 @@
 import * as React from 'react'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Updater, useImmer } from 'use-immer'
-import { ISong } from '../../interfaces/Interfaces'
+import { IBar, IChord, ILine, ISong } from '../../interfaces/Interfaces'
+
+export const initialChord: IChord = {
+    name: '_',
+}
+
+export const initialBar: IBar = {
+    chords: [
+        initialChord,
+        initialChord,
+        initialChord,
+        initialChord,
+    ]
+}
+
+export const initialLine: ILine = {
+    bars: [
+        initialBar,
+        initialBar,
+        initialBar,
+        initialBar,
+    ]
+}
 
 export const initialSong: ISong = {
     title: 'New Title',
@@ -11,82 +33,20 @@ export const initialSong: ISong = {
             name: 'Intro',
             // backgroundColor: '#aaaaaa',
             lines: [
-                {
-                    bars: [
-                        {
-                            chords: [
-                                {
-                                    name: '_',
-                                },
-                                {
-                                    name: '_',
-                                },
-                                {
-                                    name: '_',
-                                },
-                                {
-                                    name: '_',
-                                },
-                            ]
-                        },
-                        {
-                            chords: [
-                                {
-                                    name: '_',
-                                },
-                                {
-                                    name: '_',
-                                },
-                                {
-                                    name: '_',
-                                },
-                                {
-                                    name: '_',
-                                },
-                            ]
-                        },
-                        {
-                            chords: [
-                                {
-                                    name: '_',
-                                },
-                                {
-                                    name: '_',
-                                },
-                                {
-                                    name: '_',
-                                },
-                                {
-                                    name: '_',
-                                },
-                            ]
-                        },
-                        {
-                            chords: [
-                                {
-                                    name: '_',
-                                },
-                                {
-                                    name: '_',
-                                },
-                                {
-                                    name: '_',
-                                },
-                                {
-                                    name: '_',
-                                },
-                            ]
-                        },
-                        
-                    ]
-                },
+                initialLine,
             ]
         }
-    ]
+    ],
+    //the problem is it could be different locally
+    //but that could be overwritten by the local component
+    // barLength: 4,
 }
 
 export interface ISongContext {
     song: ISong,
+    initialLine: ILine,
+    initialBar: IBar,
+    initialChord: IChord,
     setSong: (draft) => Updater<ISong>,
     saveSong: () => void,
     loadSong: () => void,
@@ -94,6 +54,9 @@ export interface ISongContext {
 
 export const SongContext = React.createContext({
     song: initialSong,
+    initialLine: initialLine,
+    initialBar: initialBar,
+    initialChord: initialChord,
     setSong: (draft) => {},
     saveSong: () => {},
     loadSong: () => {},
@@ -125,7 +88,7 @@ export const SongProvider = ({ children }: { children: React.ReactNode }): JSX.E
     }
 
     return (
-        <SongContext.Provider value={{ song, setSong, saveSong, loadSong }}>
+        <SongContext.Provider value={{ song, initialChord, initialBar, initialLine, setSong, saveSong, loadSong }}>
             {children}
         </SongContext.Provider>
     )

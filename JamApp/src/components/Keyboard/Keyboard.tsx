@@ -1,11 +1,14 @@
 import * as React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, GestureResponderEvent, TouchableOpacityProps } from 'react-native';
+// import { SongContext } from '../../context/SongContext/SongContext';
 
 export interface KeyboardProps /*extends TouchableOpacityProps*/ {
     onPress: (e: GestureResponderEvent, key) => void;
 }
 
 const Keyboard = ({ onPress /*onPress*/ }: KeyboardProps): JSX.Element => {
+    //HERE OR IN THE EDITOR?
+    // const { setSong } = React.useContext(SongContext);
 
     // The keyboard can change slitely depending on the chosen key
     // The less sharps or flats the better (F#/Gb, G#m/Abm, etc.)

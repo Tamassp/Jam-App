@@ -17,9 +17,13 @@ const Song = ({
     // Implement the component logic here
 
     return (
-        <View>
-           <Text>Title: {title}</Text>
-            <Text>Artist: {artist}</Text>
+        <View style={styles.containerStyle}>
+            <Text style={styles.titleStyle}>{title}</Text>
+            <View style={styles.songHeaderStyles}>
+                <Text>4/4</Text>
+                
+                <Text>Artist: {artist}</Text>
+            </View>
             {songSections.map((songSection, index) => (
                 <SongSection 
                     songSectionId={index.toString()}
@@ -32,7 +36,25 @@ const Song = ({
 };
 
 const styles = StyleSheet.create({
-    
+    containerStyle: {        
+        width: '100%',
+        maxWidth: 800,
+        height: '100%',
+        padding: 32,
+        backgroundColor: '#f0f0f0',
+
+    },
+    titleStyle: {
+        textAlign: 'center',
+        fontSize: 32,
+        fontWeight: 'bold',
+        
+    },
+    songHeaderStyles: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 16,
+    },
 });
 
 export default Song;

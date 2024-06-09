@@ -6,6 +6,7 @@ import { useFocus } from '../../context/FocusContext'
 
 export interface ChordProps extends IChord {
     chordId: string;
+    
 }
 
 const Chord = ({
@@ -35,7 +36,7 @@ const Chord = ({
     
 
     return (
-        <TouchableOpacity style={styles.chord} onPress={() => handleFocus(chordId)}>
+        <TouchableOpacity style={[styles.container, {width: '25%'}]} onPress={() => handleFocus(chordId)}>
             <Text style={[styles.chordText, focusedId === chordId && {color: 'red'}]}>{name}</Text>
         </TouchableOpacity>
 
@@ -43,11 +44,14 @@ const Chord = ({
 };
 
 const styles = StyleSheet.create({
-    chord: {
-        padding: 5,
+    container: {
+        padding: 8,
+        //Make line wrappable
+        // paddingHorizontal: 32,
+        // padding: 1
     },
     chordText: {
-        fontSize: 24,
+        fontSize: 32,
     },
 })
 

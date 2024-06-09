@@ -50,7 +50,7 @@ const Bar = React.memo( function Bar ({
         
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, barLength == 4 ? {width: '50%'} : {width: '25%'}]}>
             {chords.map((chord, index) => (
                 <Chord key={index} chordId={barId + index} name={chord.name} />
             ))}
@@ -64,8 +64,10 @@ const Bar = React.memo( function Bar ({
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'space-around',
         borderRightWidth: 1,
+        padding: 5,
+        backgroundColor: '#bada55'
     },
     
 });
