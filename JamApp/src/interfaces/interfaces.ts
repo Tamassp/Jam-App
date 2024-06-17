@@ -10,6 +10,7 @@ export interface IBar {
 }
 
 export interface ILine {
+    //id: string;
     number?: number;
     lineLength?: number;
     bars: IBar[];

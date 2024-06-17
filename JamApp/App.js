@@ -10,14 +10,19 @@ import SongEditor from './src/components/SongEditor/SongEditor'
 import MenuBar from './src/components/MenuBar/MenuBar';
 import Main from './src/pages/Main'
 import { SongProvider } from './src/context/SongContext/SongContext'
+// import StorybookUIRoot from './.storybook'
+//export { default } from './.storybook';
+
+
 
 // type Song = {
 //   songSection: SongSectionProps
 //   key: string
 //   tempo: number
 // }
+const JamApp = 'true';
 
-export default function App() {
+const App = () => {
 
   
 
@@ -86,3 +91,5 @@ const styles = StyleSheet.create({
     // justifyContent: 'center',
   },
 });
+
+export default App ;

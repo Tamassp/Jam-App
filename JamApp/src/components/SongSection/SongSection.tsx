@@ -4,7 +4,7 @@ import Bar, { BarProps } from '../Bar/Bar';
 import { LineProps } from '../Line/Line'
 import { Line } from '../Line'
 import Button from '../Button/Button';
-import { SongContext } from '../../context/SongContext/SongContext';
+import { useSongContext } from '../../context/SongContext/SongContext';
 
 export interface SongSectionProps {
     songSectionId: string;
@@ -28,11 +28,20 @@ const SongSection = ({
     newChord, 
     // isEditing = true,
     ...props }: SongSectionProps): JSX.Element => {
-    const { initialLine, setSong } = React.useContext(SongContext);
+    const { initialLine, setSong } = useSongContext()
 
     const handleOnPress = () => {
         console.log('NEW SECTION');
     }
+
+    const handleTitleChange = () => {
+        // UPDATE THE TITLE
+        setSong(draft => {
+            draft.sections[songSectionId].title = 'NEW TITLE'
+        })
+        console.log('TITLE CHANGE');
+    }
+
     const handleNewLine = React.useCallback(() => {
         console.log("NEW LINE")
         console.log(lines)
@@ -44,29 +53,38 @@ const SongSection = ({
 
     },[])
 
-    const handleDeleteLine = React.useCallback(() => {
+    const handleDeleteLine = React.useCallback((index: number) => {
         console.log("DELETE LINE")
         console.log(lines)
         setSong(draft => {
-            // Delete the line based on id
-            draft.sections[songSectionId].lines.pop()
+            // DELETE LINE BASED ON INDEX
+            draft.sections[songSectionId].lines.splice(index, 1);
         })
-    },[])
+    },[lines])
 
-    const handleCopyLine = React.useCallback(() => {
+    const handleCopyLine = React.useCallback((index: number) => {
         console.log("COPY LINE")
-        console.log(lines)
+        console.log("LINES: " + lines)
+        console.log("LINEID: " + index)
+        // MAKE A COPY OF THE LINE
+        const copiedLine = lines[index]
+        console.log(copiedLine)
         setSong(draft => {
-            // Copy the line based on id
-            draft.sections[songSectionId].lines.push(lines[0])
+            // INSERT THE COPIED LINE INTO THE ARRAY
+            draft.sections[songSectionId].lines.splice(index, 0, copiedLine);
         })
-    },[])
+    },[lines])
+
+    React.useEffect(() => {
+        //CONSOLE LOG THE WHOLE LINE OBJECT
+        console.log("LINES: " + JSON.stringify(lines))
+    }, [lines])
 
     return (
         <View style={[styles.container, {backgroundColor}]}>
-            <View style={styles.title}>
+            <Pressable style={styles.title} onPress={handleTitleChange}>
                 <Text>{title}</Text>
-            </View>
+            </Pressable>
             {lines.length > 0 && lines.map((line, index) => (
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <Line 
@@ -77,10 +95,10 @@ const SongSection = ({
                     <Pressable onPress={handleNewLine} style={{backgroundColor: 'red', padding: 8, margin: 2}}>
                         <Text>+</Text>
                     </Pressable>
-                    <Pressable onPress={handleDeleteLine} style={{backgroundColor: 'red', padding: 8, margin: 2}}>
+                    <Pressable onPress={() => handleDeleteLine(index)} style={{backgroundColor: 'red', padding: 8, margin: 2}}>
                         <Text>-</Text>
                     </Pressable>
-                    <Pressable onPress={handleCopyLine} style={{backgroundColor: 'red', padding: 8, margin: 2}}>
+                    <Pressable onPress={() => handleCopyLine(index)} style={{backgroundColor: 'red', padding: 8, margin: 2}}>
                         <Text>Copy</Text>
                     </Pressable>
                 </View>
