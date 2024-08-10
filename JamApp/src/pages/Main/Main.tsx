@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { useCallback } from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
+import { View, StyleSheet, ViewStyle, TouchableWithoutFeedback } from 'react-native';
 import MenuBar from '../../components/MenuBar/MenuBar'
 import SongEditor from '../../components/SongEditor/SongEditor'
 import { StatusBar } from 'expo-status-bar';
 import { ISong } from '../../interfaces/Interfaces'
 import { useImmer } from "use-immer";
 import ChartList from '../../components/ChartList'
+import { useFocus } from '../../context/FocusContext'
 
 
 
@@ -125,17 +126,20 @@ const Main = ({
     
     }
 
-    
+    const { handleFocus } = useFocus()
+
     return (
         <View style={styles.wrapper}>
             {/* <MenuBar onNewSheet={handleNewSong}/> */}
             {/* <Text>Open up App.js to start working on your app!</Text>
             <Text>Open up App.js to start work app!</Text> */}
+            <>
             {song &&
                 <SongEditor  />
             }
             {/* <ChartList style={styles.chartList} /> */}
             <StatusBar style="auto" />
+            </>
         </View>
     );
 }
@@ -157,7 +161,8 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
         // flex: 1,
-        // backgroundColor: '#fff',
+        // borderWidth:
+        backgroundColor: '#555555',
         // alignItems: 'center',
         // justifyContent: 'center', 
     },

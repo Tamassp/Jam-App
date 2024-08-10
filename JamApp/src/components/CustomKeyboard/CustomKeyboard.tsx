@@ -2,11 +2,11 @@ import * as React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, GestureResponderEvent, TouchableOpacityProps } from 'react-native';
 // import { SongContext } from '../../context/SongContext/SongContext';
 
-export interface KeyboardProps /*extends TouchableOpacityProps*/ {
+export interface CustomKeyboardProps /*extends TouchableOpacityProps*/ {
     onPress: (e: GestureResponderEvent, key) => void;
 }
 
-const Keyboard = ({ onPress /*onPress*/ }: KeyboardProps): JSX.Element => {
+const CustomKeyboard = ({ onPress /*onPress*/ }: CustomKeyboardProps): JSX.Element => {
     //HERE OR IN THE EDITOR?
     // const { setSong } = React.useContext(SongContext);
 
@@ -73,4 +73,4 @@ const styles = StyleSheet.create({
     
 });
 
-export default Keyboard;
+export default CustomKeyboard;

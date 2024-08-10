@@ -3,7 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { FocusProvider } from './src/context/FocusContext';
 import Bar from './src/components/Bar/Bar';
 import SongSection from './src/components/SongSection'
-import Keyboard from './src/components/Keyboard/Keyboard'
+import Keyboard from './src/components/CustomKeyboard/CustomKeyboard'
 import Line from './src/components/Line/Line'
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import SongEditor from './src/components/SongEditor/SongEditor'

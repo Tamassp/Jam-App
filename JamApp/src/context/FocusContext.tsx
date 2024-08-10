@@ -1,13 +1,25 @@
-import { createContext, useContext, useState } from 'react';
+import React from 'react'
+import { Keyboard } from 'react-native'
 
-const FocusContext = createContext({});
+export interface IFocusContext {
+  focusedId: string
+  handleFocus: (draft: string) => React.Dispatch<React.SetStateAction<string>>
+}
+
+const FocusContext = React.createContext({
+  focusedId: "",
+  handleFocus: (id: string) => {}
+})
 
 export const FocusProvider = ({ children }) => {
-  const [focusedId, setFocusedId] = useState<String>(null);
+  const [focusedId, setFocusedId] = React.useState<string>(null);
 
-  const handleFocus = (id) => {
+  const handleFocus = (id: string) => {
     console.log('handleFocus', id);
-    
+    //It dissmisses even if the focus is on a text input
+    if(Keyboard.isVisible() && !id.includes("TEXT")){
+      Keyboard.dismiss()
+    }
     setFocusedId(id);
   };
 
@@ -19,5 +31,5 @@ export const FocusProvider = ({ children }) => {
 };
 
 export const useFocus = () => {
-  return useContext(FocusContext);
+  return React.useContext(FocusContext);
 };

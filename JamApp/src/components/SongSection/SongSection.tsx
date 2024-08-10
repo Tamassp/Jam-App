@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { View, Text, StyleSheet, ViewStyle, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ViewStyle, Pressable, TextInput } from 'react-native';
 import Bar, { BarProps } from '../Bar/Bar';
 import { LineProps } from '../Line/Line'
 import { Line } from '../Line'
 import Button from '../Button/Button';
 import { useSongContext } from '../../context/SongContext/SongContext';
+import OptionSelector from '../OptionSelector/OptionSelector'
 
 export interface SongSectionProps {
     songSectionId: string;
@@ -34,12 +35,18 @@ const SongSection = ({
         console.log('NEW SECTION');
     }
 
-    const handleTitleChange = () => {
+    const handleTitleChange = (title?: string) => {
         // UPDATE THE TITLE
-        setSong(draft => {
-            draft.sections[songSectionId].title = 'NEW TITLE'
+        if(!title)
+            setSong(draft => {
+                draft.sections[songSectionId].title = 'NEW TITLE'
+            })
+        else {
+            setSong(draft => {
+                draft.sections[songSectionId].title = title
         })
-        console.log('TITLE CHANGE');
+        }
+        console.log('TITLE CHANGE: ' + title);
     }
 
     const handleNewLine = React.useCallback(() => {
@@ -82,8 +89,10 @@ const SongSection = ({
 
     return (
         <View style={[styles.container, {backgroundColor}]}>
-            <Pressable style={styles.title} onPress={handleTitleChange}>
-                <Text>{title}</Text>
+            <Pressable style={styles.title} >
+                {/* <TextInput>{title}</TextInput> */}
+                {/* <Text>{title}</Text> */}
+                <OptionSelector focusId={`TEXT_${songSectionId}`} setOption={handleTitleChange} text={title} options={['Verse', 'Chorus', 'Bridge']} />
             </Pressable>
             {lines.length > 0 && lines.map((line, index) => (
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>

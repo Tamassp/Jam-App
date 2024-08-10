@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ViewStyle, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { SongSectionProps } from '../SongSection/SongSection'
 import Song, { SongProps } from '../Song/Song'
 import { ISong, ISongSection } from '../../interfaces/Interfaces'
-import Keyboard from '../Keyboard/Keyboard'
+import CustomKeyboard from '../CustomKeyboard/CustomKeyboard'
 import { BarProps } from '../Bar/Bar'
 import { LineProps } from '../Line/Line'
 import { useFocus } from '../../context/FocusContext'
@@ -180,13 +180,20 @@ const SongEditor: React.FC<SongEditorProps> = ({
         });
     }
 
+    const handleOutsidePress = () => {
+        console.log("OutsidePres");
+        handleFocus("")
+        //dismiss should be moved to focuscontext
+        // Keyboard.dismiss()
+    }
+
     return (
-        <View style={styles.container}>
+        <TouchableWithoutFeedback onPress={handleOutsidePress} >
             {/* <MenuBar onNewSheet={handleNewSong} onSave={handleOnSave} onExport={handleOnExport} /> */}
             {/* <TouchableOpacity onPress={(e)=> handleNewLine(e)}>
                 <Text>new line</Text>
             </TouchableOpacity> */}
-            
+            <View style={styles.container}>
             <Song title={song.title} artist={song.author} songSections={song.sections} />
             
             {isEditing && 
@@ -195,10 +202,10 @@ const SongEditor: React.FC<SongEditorProps> = ({
             </View>
             }
             <View style={styles.keyboard}>
-                <Keyboard onPress={handleKey} />
+                <CustomKeyboard onPress={handleKey} />
             </View>
-
-        </View>
+            </View>
+        </TouchableWithoutFeedback>
     );
 };
 

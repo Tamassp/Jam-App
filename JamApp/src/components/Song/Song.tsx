@@ -1,6 +1,7 @@
 import * as React from 'react';
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet, TextInput } from 'react-native'
 import SongSection, { SongSectionProps } from '../SongSection/SongSection'
+import { useFocus } from '../../context/FocusContext'
 
 export interface SongProps {
     title: string;
@@ -15,10 +16,13 @@ const Song = ({
     ...props
 }: SongProps): JSX.Element => {
     // Implement the component logic here
-
+    const {handleFocus} = useFocus()
+    const handleOnTitleClick = React.useCallback(() => {
+        handleFocus("TEXT_TITLE")
+    },[])
     return (
         <View style={styles.containerStyle}>
-            <Text style={styles.titleStyle}>{title}</Text>
+            <TextInput onFocus={handleOnTitleClick} style={styles.titleStyle}>{title}</TextInput>
             <View style={styles.songHeaderStyles}>
                 <Text>4/4</Text>
                 
@@ -29,7 +33,8 @@ const Song = ({
                     songSectionId={index.toString()}
                     key={index}
                     backgroundColor={songSection.backgroundColor} 
-                    lines={songSection.lines} />
+                    lines={songSection.lines}
+                    title={songSection.title} />
             ))}
         </View>
     );
