@@ -30,7 +30,8 @@ export const initialSong: ISong = {
     author: 'New Author',
     sections: [
         {
-            name: 'Intro',
+            //name: 'Intro',
+            title: 'Intro',
             // backgroundColor: '#aaaaaa',
             lines: [
                 initialLine,
@@ -43,42 +44,49 @@ export const initialSong: ISong = {
 }
 
 export interface ISongContext {
+    allSongs: string[]
     song: ISong,
     initialLine: ILine,
     initialBar: IBar,
     initialChord: IChord,
+    getAllSongs: () => Promise<string[]>,
     setSong: (draft) => Updater<ISong>,
-    saveSong: () => void,
-    loadSong: () => void,
+    saveSong: (key: string) => void,
+    loadSong: (key: string) => void,
 }
 
 export const SongContext = React.createContext({
+    allSongs: [],
     song: initialSong,
     initialLine: initialLine,
     initialBar: initialBar,
     initialChord: initialChord,
+    getAllSongs: async () => [{}],
     setSong: (draft) => {},
-    saveSong: () => {},
-    loadSong: () => {},
+    saveSong: (key) => {},
+    loadSong: (key) => {},
 })
 
 export const SongProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
+    const [allSongs, setAllSongs] = useImmer<string[]>([])
     const [song, setSong] = useImmer<ISong>(initialSong);
 
-    
+    React.useEffect(()=>{
+        console.log(JSON.stringify(song))
+    },[song])
 
-    const saveSong = async () => {
+    const saveSong = async (key: string) => {
         try {
             const jsonValue = JSON.stringify(song)
-            await AsyncStorage.setItem('@song', jsonValue)
+            await AsyncStorage.setItem(key, jsonValue)
         } catch (e) {
             console.log(e)
         }
     }
 
-    const loadSong = async () => {
+    const loadSong = async (key: string) => {
         try {
-            const jsonValue = await AsyncStorage.getItem('@song')
+            const jsonValue = await AsyncStorage.getItem(key)
             if (jsonValue != null) {
                 setSong(JSON.parse(jsonValue))
             }
@@ -87,8 +95,19 @@ export const SongProvider = ({ children }: { children: React.ReactNode }): JSX.E
         }
     }
 
+    const getAllSongs = async () => {
+        try {
+            const keys: readonly string[] = await AsyncStorage.getAllKeys()
+            // return [...keys] as string[] // Convert to mutable array
+            setAllSongs([...keys] as string[])
+        } catch (error) {
+            console.error('Error getting all keys:', error)
+            return []
+        }
+    }
+
     return (
-        <SongContext.Provider value={{ song, initialChord, initialBar, initialLine, setSong, saveSong, loadSong }}>
+        <SongContext.Provider value={{ allSongs, song, initialChord, initialBar, initialLine, getAllSongs, setSong, saveSong, loadSong }}>
             {children}
         </SongContext.Provider>
     )

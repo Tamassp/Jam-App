@@ -12,6 +12,7 @@ import Button from '../Button/Button'
 import { ChordProps } from '../Chord/Chord'
 import MenuBar from '../MenuBar/MenuBar'
 import { useSongContext } from '../../context/SongContext/SongContext';
+import ChartList from '../ChartList'
 
 interface SongEditorProps {
     // song: ISong;
@@ -29,7 +30,9 @@ const SongEditor: React.FC<SongEditorProps> = ({
     }
 
 
-    const {song, setSong, saveSong, loadSong} = useSongContext();
+    const {song, getAllSongs, setSong, saveSong, loadSong} = useSongContext();
+
+    const [isChartListOpen, setIsChartListOpen] = useState<boolean>(false)
 
     const lineLength = 4;
     const barLength = 4;
@@ -165,12 +168,12 @@ const SongEditor: React.FC<SongEditorProps> = ({
 
     const handleOnSave = () => {
         console.log("SAVING SONG");
-        setSong(draft => {
-            draft.title = 'New Title';
-        });
+        // setSong(draft => {
+        //     draft.title = 'New Title';
+        // });
         
         console.log(JSON.stringify(song));
-        saveSong();
+        saveSong(song.title + " - " + song.author);
     }
 
     const handleOnExport = () => {
@@ -187,23 +190,31 @@ const SongEditor: React.FC<SongEditorProps> = ({
         // Keyboard.dismiss()
     }
 
+    const handleOpenChartlist = () => {
+        setIsChartListOpen(true)
+    }
+
     return (
         <TouchableWithoutFeedback onPress={handleOutsidePress} >
-            {/* <MenuBar onNewSheet={handleNewSong} onSave={handleOnSave} onExport={handleOnExport} /> */}
+           
             {/* <TouchableOpacity onPress={(e)=> handleNewLine(e)}>
                 <Text>new line</Text>
             </TouchableOpacity> */}
             <View style={styles.container}>
-            <Song title={song.title} artist={song.author} songSections={song.sections} />
-            
-            {isEditing && 
-            <View style={styles.newSection}>
-                <Button onPress={handleNewSection}>New Section</Button>
-            </View>
-            }
-            <View style={styles.keyboard}>
-                <CustomKeyboard onPress={handleKey} />
-            </View>
+                <MenuBar onChartListOpen={handleOpenChartlist} onNewSheet={handleNewSong} onSave={handleOnSave} onExport={handleOnExport} />
+                <Song title={song.title} artist={song.author} songSections={song.sections} />
+                {isChartListOpen &&
+                    <ChartList setIsChartListOpen={setIsChartListOpen} />
+                }
+                {isEditing && 
+                <View style={styles.newSection}>
+                    <Button onPress={handleNewSection}>New Section</Button>
+                </View>
+                }
+                
+                <View style={styles.keyboard}>
+                    <CustomKeyboard onPress={handleKey} />
+                </View>
             </View>
         </TouchableWithoutFeedback>
     );

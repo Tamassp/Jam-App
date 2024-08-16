@@ -37,16 +37,19 @@ const SongSection = ({
 
     const handleTitleChange = (title?: string) => {
         // UPDATE THE TITLE
-        if(!title)
+        if(!title) {
+            console.log("Default NEW TITLE")
             setSong(draft => {
                 draft.sections[songSectionId].title = 'NEW TITLE'
             })
+        }
         else {
+            console.log('TITLE CHANGE: ' + title)
             setSong(draft => {
                 draft.sections[songSectionId].title = title
-        })
+            })
         }
-        console.log('TITLE CHANGE: ' + title);
+        
     }
 
     const handleNewLine = React.useCallback(() => {

@@ -18,7 +18,7 @@ export interface ILine {
 
 export interface ISongSection {
     backgroundColor?: string;
-    name?: string;
+    title?: string;
     lines: ILine[];
 }
 

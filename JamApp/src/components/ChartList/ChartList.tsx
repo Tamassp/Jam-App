@@ -1,15 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, View, ViewStyle, TextStyle, Text, Modal, TouchableOpacity, ModalProps, ViewProps } from 'react-native';
 import Divider from '../Divider'
+import { useSongContext } from '../../context/SongContext/SongContext'
 
 interface ChartListProps extends ViewProps {
     // probably charts will be pulled from context
     charts?: string[];
+    setIsChartListOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const ChartList = ({
     // Implement props for the ChartList component here
     charts = [],
+    setIsChartListOpen
 }: ChartListProps): JSX.Element => {
 
     const dummyCharts = [{
@@ -25,13 +28,22 @@ const ChartList = ({
         artist: 'Artist 3',
     },
     ]
+    const {allSongs, song, getAllSongs, setSong, saveSong, loadSong} = useSongContext();
 
     const [modalVisible, setModalVisible] = React.useState(true);
 
     const handleBack = () => {
         setModalVisible(false);
         console.log('back');
-        
+        setIsChartListOpen(false)
+    }
+
+    useEffect(() => {
+        getAllSongs()
+    })
+
+    const handleChartPress = (key: string) => {
+        loadSong(key)
     }
 
 
@@ -50,6 +62,13 @@ const ChartList = ({
                         <Text>{chart.title} - {chart.artist}</Text>
                         <Divider />
                     </View>
+                ))}
+                {allSongs.map((song, index) => (
+                    <TouchableOpacity key={index} onPress={()=>handleChartPress(song)}>
+                        {/* implement ... when its too long */}
+                        <Text>{song}</Text>
+                        <Divider />
+                    </TouchableOpacity>
                 ))}
                 <TouchableOpacity style={styles.backButton} onPress={handleBack}>
                     <Text>Back</Text>
