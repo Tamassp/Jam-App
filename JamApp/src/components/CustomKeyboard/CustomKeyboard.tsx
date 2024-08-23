@@ -33,14 +33,18 @@ const CustomKeyboard = ({ onPress /*onPress*/ }: CustomKeyboardProps): JSX.Eleme
             <View style={styles.row}>
                 {majors.map((major, index) => (
                     <TouchableOpacity onPress={(e) => onPress(e, major)} key={index} style={styles.key}>
-                        <Text style={styles.text}>{major}</Text>
+                        <View style={styles.textWrapper}>
+                            <Text style={styles.text}>{major}</Text>
+                        </View>
                     </TouchableOpacity>
                 ))}
             </View>
             <View style={styles.row}>
                 {minors.map((minor, index) => (
                     <TouchableOpacity onPress={(e) => onPress(e, minor)} key={index} style={styles.key}>
-                        <Text style={styles.text}>{minor}</Text>
+                        <View style={styles.textWrapper}>
+                            <Text style={styles.text}>{minor}</Text>
+                        </View>
                     </TouchableOpacity>
                 ))}
             </View>
@@ -50,7 +54,7 @@ const CustomKeyboard = ({ onPress /*onPress*/ }: CustomKeyboardProps): JSX.Eleme
 
 const styles = StyleSheet.create({
     container: {
-        height: 100,
+        height: 120,
         width: '100%',
         backgroundColor: '#f0f0f0',
     },
@@ -59,16 +63,27 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     key: {
-        width: 64,
-        backgroundColor: 'gray',
-        borderRadius: 5,
-        padding: 5,
-        marginVertical: 4,
-        marginHorizontal: 2,
+        width: 72,
+        // backgroundColor: 'red',
+        // borderRadius: 5,
+        padding: 6,
+        // paddingTop: 16,
+        // paddingHorizontal: 10,
+        // marginVertical: 4,
+        // marginHorizontal: 2,
     },
     text: {
         textAlign: 'center',
         fontSize: 24,
+    },
+    textWrapper: {
+        width: 64,
+        height: 32,
+        justifyContent: 'center',
+        backgroundColor: 'gray',
+        borderRadius: 5,
+        marginVertical: 4,
+        marginHorizontal: 2,
     },
     
 });

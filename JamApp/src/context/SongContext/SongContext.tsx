@@ -49,6 +49,8 @@ export interface ISongContext {
     initialLine: ILine,
     initialBar: IBar,
     initialChord: IChord,
+    barLength: number,
+    setBarLength: (length: number) => void,
     getAllSongs: () => Promise<string[]>,
     setSong: (draft) => Updater<ISong>,
     saveSong: (key: string) => void,
@@ -61,6 +63,8 @@ export const SongContext = React.createContext({
     initialLine: initialLine,
     initialBar: initialBar,
     initialChord: initialChord,
+    barLength: 4,
+    setBarLength: (length: number) => {},
     getAllSongs: async () => [{}],
     setSong: (draft) => {},
     saveSong: (key) => {},
@@ -70,6 +74,7 @@ export const SongContext = React.createContext({
 export const SongProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
     const [allSongs, setAllSongs] = useImmer<string[]>([])
     const [song, setSong] = useImmer<ISong>(initialSong);
+    const [barLength, setBarLength] = React.useState<number>(4)
 
     React.useEffect(()=>{
         console.log(JSON.stringify(song))
@@ -107,7 +112,7 @@ export const SongProvider = ({ children }: { children: React.ReactNode }): JSX.E
     }
 
     return (
-        <SongContext.Provider value={{ allSongs, song, initialChord, initialBar, initialLine, getAllSongs, setSong, saveSong, loadSong }}>
+        <SongContext.Provider value={{ allSongs, song, initialChord, initialBar, initialLine, barLength, setBarLength, getAllSongs, setSong, saveSong, loadSong }}>
             {children}
         </SongContext.Provider>
     )

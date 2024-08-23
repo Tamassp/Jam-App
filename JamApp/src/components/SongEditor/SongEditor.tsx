@@ -11,7 +11,7 @@ import { useImmer } from "use-immer";
 import Button from '../Button/Button'
 import { ChordProps } from '../Chord/Chord'
 import MenuBar from '../MenuBar/MenuBar'
-import { useSongContext } from '../../context/SongContext/SongContext';
+import { initialLine, useSongContext } from '../../context/SongContext/SongContext';
 import ChartList from '../ChartList'
 
 interface SongEditorProps {
@@ -30,19 +30,19 @@ const SongEditor: React.FC<SongEditorProps> = ({
     }
 
 
-    const {song, getAllSongs, setSong, saveSong, loadSong} = useSongContext();
+    const {song, barLength, setBarLength, getAllSongs, setSong, saveSong, loadSong} = useSongContext();
 
     const [isChartListOpen, setIsChartListOpen] = useState<boolean>(false)
 
     const lineLength = 4;
-    const barLength = 4;
+    // const barLength = 4;
 
     const [bars, setBars] = useState<BarProps[]>([]);
     const [lines, setLines] = useState<LineProps[]>([]);
 
     const [newBar, setNewBar] = useState<ChordProps[]>({name: ['']});
     const [newLine, setNewLine] = useState<BarProps[]>([newBar]);
-    const [newSongSection, setNewSongSection] = useState<SongSectionProps>({songSectionId: '1', lines: []});
+    const [newSongSection, setNewSongSection] = useState<SongSectionProps>({songSectionId: '1', lines: [initialLine]});
 
     const [chordIndex, setChordIndex] = useState<number>(0);
     const [barIndex, setBarIndex] = useState<number>(0);
@@ -60,17 +60,35 @@ const SongEditor: React.FC<SongEditorProps> = ({
         {chords: [{name: '_'}, {name: '_'}, {name: '_'}, {name: '_'}]},
         {chords: [{name: '_'}, {name: '_'}, {name: '_'}, {name: '_'}]},
     ]};
+
+    const handleNewLine = (sectionI: number) => {
+        console.log("NEW LINE: ", newLine);
+    
+        setSong(draft => {
+            console.log("HEYY");
+            draft.sections[sectionI].lines.push(placeholderLine);
+        });
+    };
     
     const handleKey = (e , key) => {
         //Using the ids, we can determine where to add the new chord
 
         // WITH NESTED SPREAD OPERATOR IT IS NOT OPTIMAL, THEREFORE USEIMMER IS USED
         
-        if(focusedId === null) return;
+        if(focusedId === (null || "")) return;
         
         //USING USE-IMMER INSTEAD
         console.log("INDEXES", sectionIndex, lineIndex, barIndex, chordIndex);
         
+
+        //IF THERE IS NO NEXT LINE, CREATE A NEW LINE IN THE SAME SECTION
+        if((focusedId.slice(3,4) === (barLength-1).toString()) &&
+        (focusedId.slice(2,3) === (lineLength-1).toString())) {
+            console.log("LAST CHORD, LAST BAR");
+            handleNewLine(sectionIndex);
+        }
+
+
         setSong(draft => {
             console.log("DRAFTTTT", song.sections[0].lines[0].bars[0].chords[0].name);
             draft.sections[sectionIndex].lines[lineIndex].bars[barIndex].chords[chordIndex].name = key;
@@ -81,6 +99,9 @@ const SongEditor: React.FC<SongEditorProps> = ({
 
         console.log("FocusedIDDDDDD", focusedId);
         
+        
+
+
         console.log("FI", focusedId.slice(2,3));
         if((focusedId.slice(3,4) === (barLength-1).toString()) &&
         (focusedId.slice(2,3) === (lineLength-1).toString())) {
@@ -124,14 +145,7 @@ const SongEditor: React.FC<SongEditorProps> = ({
     }, [focusedId])
 
     
-    const handleNewLine = (sectionI: number) => {
-        console.log("NEW LINE: ", newLine);
     
-        setSong(draft => {
-            console.log("HEYY");
-            draft.sections[sectionI].lines.push(placeholderLine);
-        });
-    };
 
     // useEffect(() => {
     //     //print the whole song
@@ -153,7 +167,7 @@ const SongEditor: React.FC<SongEditorProps> = ({
         setSong(draft => {
             draft.sections.push(newSongSection);
         });
-        handleNewLine(sectionIndex+1);
+        // handleNewLine(sectionIndex+1);
         setSectionIndex(sectionIndex + 1);
 
     }

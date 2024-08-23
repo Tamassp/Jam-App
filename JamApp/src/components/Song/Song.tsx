@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { View, Text, StyleSheet, TextInput } from 'react-native'
+import { View, Text, StyleSheet, TextInput, ScrollView } from 'react-native'
 import SongSection, { SongSectionProps } from '../SongSection/SongSection'
 import { useFocus } from '../../context/FocusContext'
 import { useSongContext } from '../../context/SongContext/SongContext'
 import { ISong } from '../../interfaces/Interfaces'
 import DynamicTextInput from '../DynamicTextInput/DynamicTextInput'
+import Button from '../Button'
 
 
 export interface SongProps {
@@ -20,7 +21,7 @@ const Song = ({
     ...props
 }: SongProps): JSX.Element => {
     // Implement the component logic here
-     const {setSong} = useSongContext();
+     const {setBarLength, setSong} = useSongContext();
      const [inputWidth, setInputWidth] = React.useState(0)
 
     const {handleFocus} = useFocus()
@@ -44,7 +45,7 @@ const Song = ({
         });
     },[])
     return (
-        <View style={styles.containerStyle}>
+        <ScrollView style={styles.containerStyle}>
             <View style={styles.titleSectionStyle}>
                 <DynamicTextInput 
                     onFocus={handleOnTitleClick} 
@@ -56,6 +57,12 @@ const Song = ({
             </View>
             <View style={styles.songHeaderStyles}>
                 <Text>4/4</Text>
+                <Button onPress={() => setBarLength(2)}>
+                    set barlength to 2
+                </Button>
+                <Button onPress={() => setBarLength(1)}>
+                    set barlength to 1
+                </Button>
                 <DynamicTextInput 
                     onFocus={handleOnArtistClick} 
                     onChangeText={(newText) => onArtistChange(newText)} 
@@ -72,7 +79,7 @@ const Song = ({
                     lines={songSection.lines}
                     title={songSection.title} />
             ))}
-        </View>
+        </ScrollView>
     );
 };
 
@@ -86,7 +93,7 @@ const styles = StyleSheet.create({
     containerStyle: {        
         width: '100%',
         maxWidth: 800,
-        height: '100%',
+        // height: '100%',
         padding: 32,
         backgroundColor: '#f0f0f0',
 

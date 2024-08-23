@@ -52,12 +52,13 @@ const SongSection = ({
         
     }
 
-    const handleNewLine = React.useCallback(() => {
+    const handleNewLine = React.useCallback((index: number) => {
         console.log("NEW LINE")
         console.log(lines)
 
         setSong(draft => {
-            draft.sections[songSectionId].lines.push(initialLine)
+            // ADD A NEW LINE TO THE ARRAY AFTER THE CURRENT LINE
+            draft.sections[songSectionId].lines.splice(index + 1, 0, initialLine);
         })
 
 
@@ -104,7 +105,7 @@ const SongSection = ({
                         key={index} 
                         bars={line.bars} 
                         newChord={newChord} />
-                    <Pressable onPress={handleNewLine} style={{backgroundColor: 'red', padding: 8, margin: 2}}>
+                    <Pressable onPress={() => handleNewLine(index)} style={{backgroundColor: 'red', padding: 8, margin: 2}}>
                         <Text>+</Text>
                     </Pressable>
                     <Pressable onPress={() => handleDeleteLine(index)} style={{backgroundColor: 'red', padding: 8, margin: 2}}>

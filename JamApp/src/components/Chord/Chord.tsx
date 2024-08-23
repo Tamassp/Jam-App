@@ -36,7 +36,7 @@ const Chord = ({
     
 
     return (
-        <TouchableOpacity style={[styles.container, {width: '25%'}]} onPress={() => handleFocus(chordId)}>
+        <TouchableOpacity style={[styles.container, {width: '100%' }]} onPress={() => handleFocus(chordId)}>
             <Text style={[styles.chordText, focusedId === chordId && {color: 'red'}]}>{name}</Text>
         </TouchableOpacity>
 
@@ -46,6 +46,7 @@ const Chord = ({
 const styles = StyleSheet.create({
     container: {
         padding: 8,
+        backgroundColor: '#f0f0f0',
         //Make line wrappable
         // paddingHorizontal: 32,
         // padding: 1

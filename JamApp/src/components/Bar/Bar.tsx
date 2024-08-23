@@ -2,6 +2,7 @@ import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Chord from '../Chord'
 import { ChordProps } from '../Chord/Chord'
+import { useSongContext } from '../../context/SongContext/SongContext'
 
 // export interface Chord {
 //     name?: string;
@@ -23,7 +24,8 @@ const Bar = React.memo( function Bar ({
     newChord,
      ...props 
 }: BarProps): JSX.Element {
-    barLength = barLength || 4;
+    const { barLength: globalBarLength } = useSongContext()
+    barLength = barLength || globalBarLength;
     const addNewChord = () => {
         if (newChord) {
             console.log('newChord', newChord);
@@ -51,8 +53,10 @@ const Bar = React.memo( function Bar ({
 
     return (
         <View style={[styles.container, barLength == 4 ? {width: '50%'} : {width: '25%'}]}>
-            {chords.map((chord, index) => (
-                <Chord key={index} chordId={barId + index} name={chord.name} />
+            {chords.slice(0, barLength).map((chord, index) => (
+                <View style={{width: `${100 / barLength}%`}}>
+                    <Chord key={index} chordId={barId + index} name={chord.name} />
+                </View>
             ))}
             {/* {chords.length < 2 && 
                 <Chord name=' 1' />
@@ -64,7 +68,7 @@ const Bar = React.memo( function Bar ({
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        justifyContent: 'space-around',
+        // justifyContent: 'space-around',
         borderRightWidth: 1,
         padding: 5,
         backgroundColor: '#bada55'
