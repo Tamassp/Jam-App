@@ -46,7 +46,7 @@ const Chord = ({
 const styles = StyleSheet.create({
     container: {
         padding: 8,
-        backgroundColor: '#f0f0f0',
+        // backgroundColor: '#f0f0f0',
         //Make line wrappable
         // paddingHorizontal: 32,
         // padding: 1

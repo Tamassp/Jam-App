@@ -13,6 +13,10 @@ import { ChordProps } from '../Chord/Chord'
 import MenuBar from '../MenuBar/MenuBar'
 import { initialLine, useSongContext } from '../../context/SongContext/SongContext';
 import ChartList from '../ChartList'
+import useCreateAndSharePDF from '../../hooks/useCreateAndSharePDF'
+import Divider from '../Divider'
+import { useExportAsPdf } from '../../hooks/useExportAsPdf'
+import ViewShot from 'react-native-view-shot'
 
 interface SongEditorProps {
     // song: ISong;
@@ -60,6 +64,9 @@ const SongEditor: React.FC<SongEditorProps> = ({
         {chords: [{name: '_'}, {name: '_'}, {name: '_'}, {name: '_'}]},
         {chords: [{name: '_'}, {name: '_'}, {name: '_'}, {name: '_'}]},
     ]};
+
+    const { viewRef, createAndSharePDF } = useCreateAndSharePDF()
+    const { viewShotRef, captureView } = useExportAsPdf()
 
     const handleNewLine = (sectionI: number) => {
         console.log("NEW LINE: ", newLine);
@@ -190,12 +197,10 @@ const SongEditor: React.FC<SongEditorProps> = ({
         saveSong(song.title + " - " + song.author);
     }
 
-    const handleOnExport = () => {
-        console.log("EXPORTING SONG");
-        setSong(draft => {
-            draft.title = 'New Title222';
-        });
-    }
+    // const handleOnExport = () => {
+    //     console.log("EXPORTING SONG");
+    //     useCreateAndSharePDF(song)
+    // }
 
     const handleOutsidePress = () => {
         console.log("OutsidePres");
@@ -208,6 +213,7 @@ const SongEditor: React.FC<SongEditorProps> = ({
         setIsChartListOpen(true)
     }
 
+
     return (
         <TouchableWithoutFeedback onPress={handleOutsidePress} >
            
@@ -215,16 +221,14 @@ const SongEditor: React.FC<SongEditorProps> = ({
                 <Text>new line</Text>
             </TouchableOpacity> */}
             <View style={styles.container}>
-                <MenuBar onChartListOpen={handleOpenChartlist} onNewSheet={handleNewSong} onSave={handleOnSave} onExport={handleOnExport} />
-                <Song title={song.title} artist={song.author} songSections={song.sections} />
+                <MenuBar onChartListOpen={handleOpenChartlist} onNewSheet={handleNewSong} onSave={handleOnSave} onExport={() => captureView(false)} />
+                <ViewShot ref={viewShotRef}>
+                    <Song ref={viewRef} title={song.title} artist={song.author} songSections={song.sections} handleNewSection={handleNewSection}/>
+                </ViewShot>
                 {isChartListOpen &&
                     <ChartList setIsChartListOpen={setIsChartListOpen} />
                 }
-                {isEditing && 
-                <View style={styles.newSection}>
-                    <Button onPress={handleNewSection}>New Section</Button>
-                </View>
-                }
+                
                 
                 <View style={styles.keyboard}>
                     <CustomKeyboard onPress={handleKey} />

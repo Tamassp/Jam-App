@@ -2,27 +2,34 @@ import * as React from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView } from 'react-native'
 import SongSection, { SongSectionProps } from '../SongSection/SongSection'
 import { useFocus } from '../../context/FocusContext'
-import { useSongContext } from '../../context/SongContext/SongContext'
+import { initialLine, useSongContext } from '../../context/SongContext/SongContext'
 import { ISong } from '../../interfaces/Interfaces'
 import DynamicTextInput from '../DynamicTextInput/DynamicTextInput'
 import Button from '../Button'
+import { forwardRef, Ref } from 'react'
+import Divider from '../Divider'
 
 
 export interface SongProps {
     title: string;
     artist: string;
     songSections: SongSectionProps[];
+    handleNewSection: () => void;
 }
 
-const Song = ({
-    title = "Title",
-    artist = "Artist",
-    songSections = [],
-    ...props
-}: SongProps): JSX.Element => {
+const Song = forwardRef<View, SongProps>(({
+  title = "Title",
+  artist = "Artist",
+  songSections = [],
+  handleNewSection,
+  ...props
+}, ref: Ref<View>) => {
     // Implement the component logic here
      const {setBarLength, setSong} = useSongContext();
      const [inputWidth, setInputWidth] = React.useState(0)
+     const [isEditing, setIsEditing] = React.useState(true)
+     
+     
 
     const {handleFocus} = useFocus()
     const handleOnTitleClick = React.useCallback(() => {
@@ -44,8 +51,19 @@ const Song = ({
             draft.author = newArtist
         });
     },[])
+
+    // const handleNewSection = () => {
+    //     console.log("NEW SECTION");
+    //     setSong(draft => {
+    //         draft.sections.push({songSectionId: '1', lines: [initialLine]});
+    //     });
+    //     // handleNewLine(sectionIndex+1);
+    //     setSectionIndex(sectionIndex + 1);
+
+    // }
     return (
         <ScrollView style={styles.containerStyle}>
+            <View ref={ref}>
             <View style={styles.titleSectionStyle}>
                 <DynamicTextInput 
                     onFocus={handleOnTitleClick} 
@@ -79,9 +97,16 @@ const Song = ({
                     lines={songSection.lines}
                     title={songSection.title} />
             ))}
+            </View>
+            {isEditing && 
+                <View style={styles.newSection}>
+                    <Button onPress={handleNewSection}>New Section</Button>
+                </View>
+                }
+            <Divider size={16} />
         </ScrollView>
     );
-};
+});
 
 const styles = StyleSheet.create({
     artistStyle: {
@@ -95,8 +120,14 @@ const styles = StyleSheet.create({
         maxWidth: 800,
         // height: '100%',
         padding: 32,
-        backgroundColor: '#f0f0f0',
+        // backgroundColor: '#f0f0f0',
 
+    },
+    newSection: {
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop: 16,
     },
     titleSectionStyle: {
         flexDirection: 'row',

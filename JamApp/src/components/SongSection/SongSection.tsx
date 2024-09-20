@@ -6,6 +6,9 @@ import { Line } from '../Line'
 import Button from '../Button/Button';
 import { useSongContext } from '../../context/SongContext/SongContext';
 import OptionSelector from '../OptionSelector/OptionSelector'
+import OptionSelectorVertical from '../OptionSelectorVertical/OptionSelectorVertical'
+import EditIcon from '../../icons/EditIcon'
+import { useFocus } from '../../context/FocusContext'
 
 export interface SongSectionProps {
     songSectionId: string;
@@ -29,7 +32,9 @@ const SongSection = ({
     newChord, 
     // isEditing = true,
     ...props }: SongSectionProps): JSX.Element => {
+    const { focusedId, handleFocus } = useFocus()
     const { initialLine, setSong } = useSongContext()
+    // const [isEditOpen, setIsEditOpen] = React.useState<boolean>(false);
 
     const handleOnPress = () => {
         console.log('NEW SECTION');
@@ -51,6 +56,15 @@ const SongSection = ({
         }
         
     }
+
+    const handleEditButtonPress = React.useCallback(() => {
+        // setIsEditOpen(!isEditOpen)
+        if(focusedId == `EDIT_${songSectionId}`) {
+            handleFocus("")
+        } else {
+            handleFocus(`EDIT_${songSectionId}`)
+        }
+    }, [focusedId])
 
     const handleNewLine = React.useCallback((index: number) => {
         console.log("NEW LINE")
@@ -93,11 +107,22 @@ const SongSection = ({
 
     return (
         <View style={[styles.container, {backgroundColor}]}>
-            <Pressable style={styles.title} >
-                {/* <TextInput>{title}</TextInput> */}
-                {/* <Text>{title}</Text> */}
-                <OptionSelector focusId={`TEXT_${songSectionId}`} setOption={handleTitleChange} text={title} options={['Verse', 'Chorus', 'Bridge']} />
-            </Pressable>
+            <View style={styles.titleWrapper}>
+                <Pressable style={styles.title} >
+                    {/* <TextInput>{title}</TextInput> */}
+                    {/* <Text>{title}</Text> */}
+                    <OptionSelector focusId={`TEXT_${songSectionId}`} setOption={handleTitleChange} text={title} options={['Verse', 'Chorus', 'Bridge']} />
+                </Pressable>
+                <Button 
+                    onPress={handleEditButtonPress} 
+                    icon={<EditIcon width={20} height={20} />}
+                    style={{borderWidth: 0}}
+                />
+            </View>
+            <OptionSelectorVertical focusId={`EDIT_${songSectionId}`} style={styles.sectionOptions} options={["Add Repeat", "Do something", "Delete"]} text={'icon'} setOption={function (value: React.SetStateAction<string>): void {
+                    throw new Error('Function not implemented.')
+                } } />
+
             {lines.length > 0 && lines.map((line, index) => (
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
                     <Line 
@@ -128,6 +153,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         // borderLeftWidth: 2,
         marginTop: 20,
+        width: 672
     },
     bar: {
         // backgroundColor: '#f0f0f0',
@@ -142,14 +168,32 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         borderRightWidth: 1,
     },
+    sectionOptions: {
+        position: 'absolute',
+        zIndex: 1,
+        marginTop: 16
+
+    },
     title: {
+        // position: 'absolute',
+        zIndex: 1,
+        // top: -20,
+        // left: -10,
+        padding: 5,
+        backgroundColor: 'lightgreen',
+        borderRadius: 2,
+    },
+    titleWrapper: {
         position: 'absolute',
         zIndex: 1,
         top: -20,
         left: -10,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
         padding: 5,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 2,
+        
+        // backgroundColor: '#f0f0f0',
     },
     
 });

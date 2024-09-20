@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
         // justifyContent: 'space-around',
         borderRightWidth: 1,
         padding: 5,
-        backgroundColor: '#bada55'
+        // backgroundColor: '#bada55'
     },
     
 });
