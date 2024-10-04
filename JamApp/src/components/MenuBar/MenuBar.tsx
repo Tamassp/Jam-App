@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from 'react-native';
 import Button from '../Button'
+import { usePDF } from '../../context/PDFContext'
 
 export interface MenuBarProps {
     onNewSheet?: () => void;
@@ -15,6 +16,7 @@ const MenuBar = ({
     onExport,
     onChartListOpen,
     ...props }: MenuBarProps): JSX.Element => {
+        const {isPDFView, setIsPDFView} = usePDF()
     
     const handleNewSong = () => {
         onNewSheet();
@@ -22,6 +24,13 @@ const MenuBar = ({
 
     const handleOpenChartsList = () => {
         onChartListOpen()
+    }
+
+    const onPreview = () => {
+        console.log("PREVIEWING SONG")
+        if(!isPDFView)
+        setIsPDFView(true)
+        else setIsPDFView(false)
     }
 
     
@@ -34,6 +43,7 @@ const MenuBar = ({
             <View style={styles.songMenu}>
                 {/* MOVED TO CHARTS MENU */}
                 {/* <Button onPress={handleNewSong}>+ New Song</Button> */}
+                <Button onPress={onPreview}>Preview {isPDFView ? "On" : "Off"}</Button>
                 <Button onPress={onSave}>Save</Button>
                 <Button onPress={onExport}>Export</Button>
             </View>

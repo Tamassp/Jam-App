@@ -10,6 +10,7 @@ import SongEditor from './src/components/SongEditor/SongEditor'
 import MenuBar from './src/components/MenuBar/MenuBar';
 import Main from './src/pages/Main'
 import { SongProvider } from './src/context/SongContext/SongContext'
+import { PDFProvider } from './src/context/PDFContext'
 // import StorybookUIRoot from './.storybook'
 //export { default } from './.storybook';
 
@@ -74,7 +75,9 @@ const App = () => {
   return (
     <SongProvider>
       <FocusProvider>
-        <Main />
+        <PDFProvider>
+          <Main />
+        </PDFProvider>
       </FocusProvider>
     </SongProvider>
 

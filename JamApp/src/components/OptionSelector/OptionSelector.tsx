@@ -2,6 +2,7 @@ import * as React from 'react';
 import { View, Text, StyleSheet, ViewStyle, TouchableOpacity, Animated, TouchableOpacityProps, GestureResponderEvent, TextInput } from 'react-native';
 import  Button, {ButtonProps} from '../Button/Button';
 import { useFocus } from '../../context/FocusContext'
+import { usePDF } from '../../context/PDFContext'
 
 export interface OptionSelectorProps extends ButtonProps {
     //open: boolean
@@ -19,6 +20,7 @@ const OptionSelector = ({
     text,
     setOption,
     ...props }: OptionSelectorProps): JSX.Element => {
+    const { isPDFView } = usePDF();
     const { focusedId, handleFocus } = useFocus()
     const [color, setColor] = React.useState("")
     const handleOnFocus = React.useCallback(() => {
@@ -38,11 +40,14 @@ const OptionSelector = ({
         // handleFocus("")
     },[])
 
+    
+
     return (
         <View style={[styles.wrapper, {backgroundColor: color}]}>
             <TextInput onFocus={handleOnFocus}
-                onBlur={handleOnBlur}>{text}</TextInput>
-            {focusedId == focusId && options.map((option, index) => (
+                onBlur={handleOnBlur}>{text}
+            </TextInput>
+            {!isPDFView && focusedId == focusId && options.map((option, index) => (
                 <Button
                     key={index}
                     onPress={() => setOption(option)}
