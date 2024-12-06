@@ -1,7 +1,11 @@
 import * as React from 'react';
 import { View, Text, StyleSheet, ViewStyle, TouchableOpacity } from 'react-native';
-import Button from '../Button'
+import Button from '../reusables/Button'
 import { usePDF } from '../../context/PDFContext'
+import Checkbox from '../reusables/Checkbox/Checkbox'
+import Toggle from '../reusables/Toggle/Toggle'
+import Switch from '../reusables/Switch/Switch'
+import ToggleGroup from '../reusables/ToggleGroup/ToggleGroup'
 
 export interface MenuBarProps {
     onNewSheet?: () => void;
@@ -39,6 +43,27 @@ const MenuBar = ({
             <View style={styles.chartsMenu}>
                  <Button onPress={handleOpenChartsList}>Charts</Button>
                  <Button onPress={handleNewSong}>+ New Song</Button>
+                <ToggleGroup toggles={
+                    [
+                        {
+                            label: "7"
+                        },
+                        {
+                            label: "8",
+                        },
+                        {
+                            label: "9",
+                        },
+                    ]
+                }
+                onToggle={(index) => console.log(index)}
+                mainToggle={
+                    {
+                        label: "4",
+                    }
+                }
+                onMainToggle={() => console.log("main")}
+                />
             </View>
             <View style={styles.songMenu}>
                 {/* MOVED TO CHARTS MENU */}

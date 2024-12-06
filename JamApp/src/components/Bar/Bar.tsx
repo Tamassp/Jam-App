@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import Chord from '../Chord'
-import { ChordProps } from '../Chord/Chord'
+import Chord, { ChordProps } from '../Chord/Chord'
 import { useSongContext } from '../../context/SongContext/SongContext'
+import { IBar } from '../../interfaces/Interfaces'
+
 
 // export interface Chord {
 //     name?: string;
@@ -10,9 +11,8 @@ import { useSongContext } from '../../context/SongContext/SongContext'
 //     chords?: Chord[];
 // }
 
-export interface BarProps {
+export interface BarProps extends IBar{
     barId: string;
-    chords: ChordProps[] /*Chord[]*/;
     barLength?: number;
     newChord?: string;
 }
@@ -22,6 +22,7 @@ const Bar = React.memo( function Bar ({
     chords, 
     barLength, 
     newChord,
+    timeSignature = '4/4',
      ...props 
 }: BarProps): JSX.Element {
     const { barLength: globalBarLength } = useSongContext()
@@ -34,33 +35,20 @@ const Bar = React.memo( function Bar ({
         }
     }
 
-    // React.useEffect
-    // (() => {
-    //     addNewChord();
-    // }, [newChord]);
-
-    if (chords.length < barLength) {
-        const initialChordsLength = chords.length;
-        for (let i = 0; i < barLength - initialChordsLength; i++) {
-            // chords.push(' 1');
-        }
-    }
-
     React.useLayoutEffect(() => {
         console.log('BarID', barId);
     }, [barId])
         
+    const beats = parseInt(timeSignature.split('/')[0], 10); // Extract beats from time signature
+
 
     return (
-        <View style={[styles.container, barLength == 4 ? {width: '50%'} : {width: '25%'}]}>
-            {chords.slice(0, barLength).map((chord, index) => (
-                <View style={{width: `${100 / barLength}%`}}>
-                    <Chord key={index} chordId={barId + index} name={chord.name} />
-                </View>
-            ))}
-            {/* {chords.length < 2 && 
-                <Chord name=' 1' />
-            } */}
+        <View style={[styles.container, {width: '50%'}]}>
+            <View style={styles.chordContainer}>
+                {chords.map((chord, index) => (
+                    <Chord key={index} chordId={barId + index} name={chord.name} children={chord.children} beats={beats}/>
+                ))}
+            </View>
         </View>
     );
 });
@@ -72,6 +60,11 @@ const styles = StyleSheet.create({
         borderRightWidth: 1,
         padding: 5,
         // backgroundColor: '#bada55'
+    },
+    chordContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%',
     },
     
 });

@@ -8,6 +8,7 @@ import { ISong } from '../../interfaces/Interfaces'
 import { useImmer } from "use-immer";
 import ChartList from '../../components/ChartList'
 import { useFocus } from '../../context/FocusContext'
+import ChordChart from '../../components/Test/Test'
 
 
 
@@ -137,6 +138,7 @@ const Main = ({
             {song &&
                 <SongEditor  />
             }
+            {/* <ChordChart /> */}
             {/* <ChartList style={styles.chartList} /> */}
             <StatusBar style="auto" />
             </>

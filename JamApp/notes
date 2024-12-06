@@ -1,0 +1,4 @@
+Update Expo Version:
+https://docs.expo.dev/workflow/upgrading-expo-sdk-walkthrough/
+
+RUN: npx expo start

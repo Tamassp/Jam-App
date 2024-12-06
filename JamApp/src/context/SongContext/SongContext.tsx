@@ -8,20 +8,66 @@ export const initialChord: IChord = {
 }
 
 export const initialBar: IBar = {
+    timeSignature: "4/4",
     chords: [
-        initialChord,
-        initialChord,
-        initialChord,
-        initialChord,
+    {
+        // name: "",
+        children: [
+            {
+                name: "",
+                children: []
+            },
+            {
+                name: "",
+                children: []
+            }
+        ]
+    }
+    ]
+}
+
+const initialBar2: IBar = {
+    timeSignature: "4/4",
+    chords: [
+    {
+        name: "",
+        children: []
+    }
+    ]
+}
+
+const initialBar3: IBar = {
+    timeSignature: "4/4",
+    chords: [
+    {
+        children: [
+            {
+                children: [
+                    {
+                        name: "C",
+                        children: []
+                    },
+                    {
+                        name: "",
+                        children: []
+                    }
+                ]
+            },
+            {
+                name: "",
+                children: []
+            }
+        ]
+    }
     ]
 }
 
 export const initialLine: ILine = {
     bars: [
         initialBar,
-        initialBar,
-        initialBar,
-        initialBar,
+        initialBar2,
+        initialBar3
+        // initialBar,
     ]
 }
 

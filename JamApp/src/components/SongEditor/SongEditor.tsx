@@ -8,7 +8,7 @@ import { BarProps } from '../Bar/Bar'
 import { LineProps } from '../Line/Line'
 import { useFocus } from '../../context/FocusContext'
 import { useImmer } from "use-immer";
-import Button from '../Button/Button'
+import Button from '../reusables/Button/Button'
 import { ChordProps } from '../Chord/Chord'
 import MenuBar from '../MenuBar/MenuBar'
 import { initialLine, useSongContext } from '../../context/SongContext/SongContext';
@@ -17,6 +17,7 @@ import useCreateAndSharePDF from '../../hooks/useCreateAndSharePDF'
 import Divider from '../Divider'
 import { useExportAsPdf } from '../../hooks/useExportAsPdf'
 import ViewShot from 'react-native-view-shot'
+import { testDB } from '../../context/testDB'
 
 interface SongEditorProps {
     // song: ISong;
@@ -58,12 +59,7 @@ const SongEditor: React.FC<SongEditorProps> = ({
     const { focusedId, handleFocus } = useFocus();
 
     // const emptyLine = {bars: [{chords: [{name: '_'}]}]};
-    const placeholderLine = {bars: [
-        {chords: [{name: '_'}, {name: '_'}, {name: '_'}, {name: '_'}]},
-        {chords: [{name: '_'}, {name: '_'}, {name: '_'}, {name: '_'}]},
-        {chords: [{name: '_'}, {name: '_'}, {name: '_'}, {name: '_'}]},
-        {chords: [{name: '_'}, {name: '_'}, {name: '_'}, {name: '_'}]},
-    ]};
+    const placeholderLine = testDB.songs[0].sections[0].lines[0];
 
     const { viewRef, createAndSharePDF } = useCreateAndSharePDF()
     const { viewShotRef, captureView } = useExportAsPdf()
@@ -139,13 +135,17 @@ const SongEditor: React.FC<SongEditorProps> = ({
         }
     }
 
+    const handleLongPress = (e, key) => {
+        console.log("LONG PRESS option", key);
+    }
+
     useEffect(() => {
         // const tempBarindex = Array.from(focusedId)[0];
-        if(focusedId === null) return;
-        setSectionIndex(focusedId.charAt(0))
-        setLineIndex(focusedId.charAt(1))
-        setBarIndex(focusedId.charAt(2))
-        setChordIndex(focusedId.charAt(3))
+        if(focusedId === null || focusedId === undefined) return;
+        setSectionIndex(Number(focusedId.charAt(0)))
+        setLineIndex(Number(focusedId.charAt(1)))
+        setBarIndex(Number(focusedId.charAt(2)))
+        setChordIndex(Number(focusedId.charAt(3)))
         
         
         // console.log("BARINDEX", barIndex);
@@ -231,7 +231,7 @@ const SongEditor: React.FC<SongEditorProps> = ({
                 
                 
                 <View style={styles.keyboard}>
-                    <CustomKeyboard onPress={handleKey} />
+                    <CustomKeyboard onPress={handleKey} onLongPressOption={handleLongPress} />
                 </View>
             </View>
         </TouchableWithoutFeedback>

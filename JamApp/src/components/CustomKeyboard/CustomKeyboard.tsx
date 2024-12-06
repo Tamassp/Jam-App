@@ -1,12 +1,13 @@
 import * as React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, GestureResponderEvent, TouchableOpacityProps } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, GestureResponderEvent, TouchableOpacityProps, Modal, PanResponder } from 'react-native';
 // import { SongContext } from '../../context/SongContext/SongContext';
 
 export interface CustomKeyboardProps /*extends TouchableOpacityProps*/ {
     onPress: (e: GestureResponderEvent, key) => void;
+    onLongPressOption?: (option: string) => void;
 }
 
-const CustomKeyboard = ({ onPress /*onPress*/ }: CustomKeyboardProps): JSX.Element => {
+const CustomKeyboard = ({ onPress, onLongPressOption /*onPress*/ }: CustomKeyboardProps): JSX.Element => {
     //HERE OR IN THE EDITOR?
     // const { setSong } = React.useContext(SongContext);
 
@@ -16,23 +17,67 @@ const CustomKeyboard = ({ onPress /*onPress*/ }: CustomKeyboardProps): JSX.Eleme
     const majors = ['Db', 'Ab', 'Eb', 'Bb', 'F', 'C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Back']
     const minors = ['Ebm', 'Bbm', 'Fm', 'Cm', 'Gm', 'Dm', 'Am', 'Em', 'Bm', 'F#m', 'C#m', 'G#m', 'Mpty']
 
-//     const handleOnPress = React.useCallback(
-//     (e: GestureResponderEvent) => {
-//       if (onPress) onPress(e)
-//     },
-//     [onPress],
-//   )
+    const [showPopup, setShowPopup] = React.useState(false);
+  const [popupPosition, setPopupPosition] = React.useState({ x: 0, y: 0 });
+  const [selectedOption, setSelectedOption] = React.useState(null);
 
-    // const handleOnPress  = (e: GestureResponderEvent, key: string) => {
-    //     console.log(key);
-    //     newKeys?.push(key);
-    // }
+  const options = ['F7', 'F9', 'F11']; // Example options for popup
+
+  // Initialize PanResponder and attach it dynamically on long press
+  // Using useMemo to ensure PanResponder is created once and does not recreate unnecessarily
+  const panResponder = React.useMemo(
+    () =>
+      PanResponder.create({
+        onStartShouldSetPanResponder: () => true,
+        onMoveShouldSetPanResponder: () => true,
+        onPanResponderMove: (e, gestureState) => {
+          // Calculate the index based on moveX relative to initial popup position (popupPosition.x)
+          const relativeX = gestureState.moveX - popupPosition.x;
+          const optionIndex = Math.floor(relativeX / 50); // Adjust for option width if needed
+          console.log('optionIndex', optionIndex);
+          console.log('options.length', options[Math.min(Math.max(0, optionIndex), options.length - 1)]);
+          setSelectedOption(options[Math.min(Math.max(0, optionIndex), options.length - 1)]);
+        },
+        onPanResponderRelease: () => {
+          if (selectedOption) {
+            onLongPressOption(selectedOption);
+          }
+          setShowPopup(false);
+          setSelectedOption(null);
+        },
+      }),
+    [options, onLongPressOption, selectedOption, popupPosition]
+  );
+
+  //TEST
+  React.useEffect(() => {
+    console.log('selectedOption', selectedOption);
+  }, [selectedOption]);
+
+  const handleLongPress = (e, major) => {
+    console.log('LONG PRESS', major);
+    const { pageX, pageY } = e.nativeEvent;
+    setPopupPosition({ x: pageX, y: pageY });
+    setShowPopup(true);
+    
+  };
+
+//   const handlePressOut = () => {
+//     if (selectedOption) {
+//       onLongPressOption(selectedOption);
+//     }
+//     setShowPopup(false);
+//     setSelectedOption(null);
+//   };
 
     return (
         <View style={styles.container}>
             <View style={styles.row}>
                 {majors.map((major, index) => (
-                    <TouchableOpacity onPress={(e) => onPress(e, major)} key={index} style={styles.key}>
+                    <TouchableOpacity 
+                        onPress={(e) => onPress(e, major)}
+                        onLongPress={(e) => handleLongPress(e, major)} 
+                        key={index} style={styles.key}>
                         <View style={styles.textWrapper}>
                             <Text style={styles.text}>{major}</Text>
                         </View>
@@ -48,6 +93,25 @@ const CustomKeyboard = ({ onPress /*onPress*/ }: CustomKeyboardProps): JSX.Eleme
                     </TouchableOpacity>
                 ))}
             </View>
+            {showPopup && (
+        <Modal transparent animationType="none" visible={showPopup}>
+          <View style={[styles.popup, { top: popupPosition.y - 80, left: popupPosition.x - 20 }]}>
+            <View {...panResponder.panHandlers} style={{flexDirection: 'row'}}>
+              {options.map((option, index) => (
+                <Text
+                  key={index}
+                  style={[
+                    styles.popupOption,
+                    selectedOption === option && styles.selectedOption,
+                  ]}
+                >
+                  {option}
+                </Text>
+              ))}
+            </View>
+          </View>
+        </Modal>
+      )}
         </View>
     );
 };
@@ -56,7 +120,7 @@ const styles = StyleSheet.create({
     container: {
         height: 120,
         width: '100%',
-        backgroundColor: '#f0f0f0',
+        // backgroundColor: '#f0f0f0',
     },
     row: {
         flexDirection: 'row',
@@ -85,6 +149,26 @@ const styles = StyleSheet.create({
         marginVertical: 4,
         marginHorizontal: 2,
     },
+
+    popup: {
+    position: 'absolute',
+    backgroundColor: '#fff',
+    padding: 5,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  popupOption: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    fontSize: 16,
+    color: '#333',
+  },
+  selectedOption: {
+    backgroundColor: '#ddd',
+  },
     
 });
 

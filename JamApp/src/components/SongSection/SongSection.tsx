@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ViewStyle, Pressable, TextInput } from 'react-n
 import Bar, { BarProps } from '../Bar/Bar';
 import { LineProps } from '../Line/Line'
 import { Line } from '../Line'
-import Button from '../Button/Button';
+import Button from '../reusables/Button/Button';
 import { useSongContext } from '../../context/SongContext/SongContext';
 import OptionSelector from '../OptionSelector/OptionSelector'
 import OptionSelectorVertical from '../OptionSelectorVertical/OptionSelectorVertical'

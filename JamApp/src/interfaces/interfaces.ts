@@ -1,10 +1,12 @@
 export interface IChord {
-    name: string;
+    name?: string;
     perBass?: string;
     type?: 'Major' | 'Minor' | 'Diminished' | 'Augmented';
+    children?: IChord[];
 }
 
 export interface IBar {
+    timeSignature?: string;
     number?: number;
     chords: IChord[];
 }

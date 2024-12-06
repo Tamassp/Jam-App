@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { View, Text, StyleSheet, ViewStyle, TouchableOpacity, Animated, TouchableOpacityProps, GestureResponderEvent, TextInput } from 'react-native';
-import  Button, {ButtonProps} from '../Button/Button';
+import  Button, {ButtonProps} from '../reusables/Button/Button';
 import { useFocus } from '../../context/FocusContext'
 import { usePDF } from '../../context/PDFContext'
 

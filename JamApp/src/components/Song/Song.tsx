@@ -5,7 +5,7 @@ import { useFocus } from '../../context/FocusContext'
 import { initialLine, useSongContext } from '../../context/SongContext/SongContext'
 import { ISong } from '../../interfaces/Interfaces'
 import DynamicTextInput from '../DynamicTextInput/DynamicTextInput'
-import Button from '../Button'
+import Button from '../reusables/Button'
 import { forwardRef, Ref } from 'react'
 import Divider from '../Divider'
 
