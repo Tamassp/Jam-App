@@ -7,6 +7,7 @@ export interface ToggleProps {
     label?: string;
     onToggle?: (isActive: boolean) => void;
     style?: ViewStyle;
+    backgroundStyle?: ViewStyle;
 }
 
 const Toggle = ({
@@ -15,6 +16,7 @@ const Toggle = ({
     label,
     onToggle,
     style,
+    backgroundStyle
 }: ToggleProps): JSX.Element => {
 
     const [active, setActive] = React.useState(isActive);
@@ -34,12 +36,12 @@ const Toggle = ({
 
     const backgroundColor = animatedValue.interpolate({
         inputRange: [0, 1],
-        outputRange: ['#ccc', '#4CAF50'], // Change color to suit your needs
+        outputRange: ['#ccc', '#FF6F00'], // Change color to suit your needs
     });
 
     return (
         <TouchableOpacity onPress={handlePress} style={[styles.toggleButton, style]}>
-            <Animated.View style={[styles.buttonBackground, { backgroundColor }]}>
+            <Animated.View style={[styles.buttonBackground, { backgroundColor }, backgroundStyle]}>
                 <Text style={[styles.buttonText, { fontSize }]}>
                     {label || (active ? 'Active' : 'Inactive')}
                 </Text>
@@ -56,12 +58,12 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     buttonBackground: {
-        paddingVertical: 10,
-        paddingHorizontal: 20,
+        paddingVertical: 8,
+        paddingHorizontal: 12,
         borderRadius: 4,
     },
     buttonText: {
-        color: 'white',
+        // color: 'white',
         // fontSize: 16,
     },
 });

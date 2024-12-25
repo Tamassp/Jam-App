@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, GestureResponderEvent, TouchableOpacityProps, Modal, PanResponder } from 'react-native';
+import ToggleGroup from '../reusables/ToggleGroup/ToggleGroup'
+import VerticalDivider from '../reusables/VerticalDivider/VerticalDivider'
 // import { SongContext } from '../../context/SongContext/SongContext';
 
 export interface CustomKeyboardProps /*extends TouchableOpacityProps*/ {
@@ -72,6 +74,108 @@ const CustomKeyboard = ({ onPress, onLongPressOption /*onPress*/ }: CustomKeyboa
 
     return (
         <View style={styles.container}>
+            <View style={[styles.row, {marginBottom: 8}]}>
+                <ToggleGroup toggles={
+                    [
+                        {
+                            label: "b"
+                        },
+                        {
+                            label: "#",
+                        },
+                    ]
+                }
+                onToggle={(index) => console.log(index)}
+                mainToggle={
+                    {
+                        label: "5",
+                    }
+                }
+                onMainToggle={() => console.log("main")}
+                />
+                <VerticalDivider />              
+                <ToggleGroup 
+                mainToggle={
+                    {
+                        label: "6",
+                    }
+                }
+                onMainToggle={() => console.log("main")}
+                />
+                <VerticalDivider />
+                <ToggleGroup toggles={
+                    [
+                        {
+                            label: "M"
+                        },
+                    ]
+                }
+                onToggle={(index) => console.log(index)}
+                mainToggle={
+                    {
+                        label: "7",
+                    }
+                }
+                onMainToggle={() => console.log("main")}
+                />
+                <VerticalDivider />
+                <ToggleGroup toggles={
+                    [
+                        {
+                            label: "b"
+                        },
+                        {
+                            label: "#",
+                        }
+                    ]
+                }
+                onToggle={(index) => console.log(index)}
+                mainToggle={
+                    {
+                        label: "9",
+                    }
+                }
+                onMainToggle={() => console.log("main")}
+                />
+                <VerticalDivider />
+                <ToggleGroup toggles={
+                    [
+                        {
+                            label: "b"
+                        },
+                        {
+                            label: "#",
+                        }
+                    ]
+                }
+                onToggle={(index) => console.log(index)}
+                mainToggle={
+                    {
+                        label: "11",
+                    }
+                }
+                onMainToggle={() => console.log("main")}
+                />
+                <VerticalDivider />
+                <ToggleGroup toggles={
+                    [
+                        {
+                            label: "b"
+                        },
+                        {
+                            label: "#",
+                        }
+                    ]
+                }
+                onToggle={(index) => console.log(index)}
+                mainToggle={
+                    {
+                        label: "13",
+                    }
+                }
+                onMainToggle={() => console.log("main")}
+                />
+            </View>
             <View style={styles.row}>
                 {majors.map((major, index) => (
                     <TouchableOpacity 
@@ -118,9 +222,13 @@ const CustomKeyboard = ({ onPress, onLongPressOption /*onPress*/ }: CustomKeyboa
 
 const styles = StyleSheet.create({
     container: {
-        height: 120,
+        height: 180,
         width: '100%',
-        // backgroundColor: '#f0f0f0',
+        // backgroundColor: 'rgba(31, 31, 31, 0.8)',
+        backgroundColor: 'rgba(217, 217, 217, 0.95)',
+        borderRadius: 4,
+        padding: 4,
+        color: 'white',
     },
     row: {
         flexDirection: 'row',
@@ -144,7 +252,7 @@ const styles = StyleSheet.create({
         width: 64,
         height: 32,
         justifyContent: 'center',
-        backgroundColor: 'gray',
+        backgroundColor: 'rgba(255, 255, 255, 0.8)',
         borderRadius: 5,
         marginVertical: 4,
         marginHorizontal: 2,

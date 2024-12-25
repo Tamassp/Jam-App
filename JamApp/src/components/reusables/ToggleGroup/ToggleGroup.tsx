@@ -3,8 +3,8 @@ import { View, StyleSheet, ViewStyle } from 'react-native';
 import Toggle from '../Toggle/Toggle'
 
 export interface ToggleGroupProps {
-    toggles: { label: string; isActive?: boolean }[];
-    onToggle: (index: number, isActive: boolean) => void;
+    toggles?: { label: string; isActive?: boolean }[];
+    onToggle?: (index: number, isActive: boolean) => void;
     mainToggle?: { label: string; isActive?: boolean };
     onMainToggle?: (isActive: boolean) => void;
     style?: ViewStyle;
@@ -19,7 +19,7 @@ const ToggleGroup = ({
 }: ToggleGroupProps): JSX.Element => {
     return (
         <View style={[styles.container, style]}>
-            {toggles.map((toggle, index) => (
+            {toggles && toggles.map((toggle, index) => (
                 <Toggle
                     key={index}
                     label={toggle.label}
@@ -34,6 +34,7 @@ const ToggleGroup = ({
                 isActive={mainToggle.isActive}
                 onToggle={onMainToggle}
                 style={styles.mainToggle}
+                backgroundStyle={{ paddingHorizontal: 20 }}
                 fontSize={20}
             />
             )}
