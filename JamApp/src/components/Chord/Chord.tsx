@@ -1,8 +1,10 @@
 import * as React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ViewStyle } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, ViewStyle, GestureResponderEvent } from 'react-native'
 import { IChord } from '../../interfaces/Interfaces'
 import { useFocus } from '../../context/FocusContext'
 import { usePDF } from '../../context/PDFContext'
+import { useSongContext } from '../../context/SongContext/SongContext'
+import OptionSelectorVertical from '../OptionSelectorVertical/OptionSelectorVertical'
 
 
 export interface ChordProps extends IChord {
@@ -22,14 +24,54 @@ const Chord = ({
     children,
     ...props
 }: ChordProps): JSX.Element => {
-    const { focusedId, handleFocus } = useFocus();
+    const { focusedId, handleFocus, holdId, handleHold } = useFocus();
     const { isPDFView, setIsPDFView } = usePDF();
+    const { setSong } = useSongContext();
 
     // Calculate width based on depth relative to the bar's width
     const splitNumber = beats % 2 == 0 ? 2 : beats;
     const widthPercentage = `${100 / (splitNumber ** depth)}%`;
     
+    const handleLongPress = React.useCallback((e: GestureResponderEvent, depth: number) => {
+        // console.log('LONG PRESS', e);
+        console.log('Depth: ', depth);
+        console.log('ChordIdLP: ', chordId);
+        handleHold(chordId);
+    }, [chordId]);
 
+    const handleOption = (option: React.SetStateAction<string>) => {
+        console.log('Option: ', option);
+        switch (option) {
+            case 'Split':
+                handleSplit();
+                break;
+            // case 'Triplet':
+            //     handleTriplet();
+            //     break;
+            default:
+                break;
+        }
+    }
+
+    const handleSplit = () => {
+        setSong(draft => {
+            console.log('Draft', draft.sections?.['0']);
+            console.log('Draft', draft.sections?.['0']?.lines?.['0'].bars?.['0']?.chords?.['0'].children)
+            if (
+                draft.sections?.['0']?.lines?.['0'].bars?.['0']?.chords?.['0'].children
+            ) {
+                draft.sections?.['0']?.lines?.['0'].bars?.['1']?.chords.splice(0, 1, {
+                    children: [
+                        { name: "", children: [] },
+                        { name: "", children: [] }
+                    ]
+                });
+            } else {
+                console.error("The required structure is missing!");
+            }
+        }
+        )
+    }
 
     if (children && children.length > 0) {
         return (
@@ -43,13 +85,18 @@ const Chord = ({
     // console.log('widthPercentage', widthPercentage);
     // console.log('ChordId', chordId);
     return (
-        <TouchableOpacity style={[styles.container, { width: widthPercentage } as ViewStyle]} onPress={() => handleFocus(chordId)}>
+        <TouchableOpacity style={[styles.container, { width: widthPercentage } as ViewStyle]} onPress={() => handleFocus(chordId)} onLongPress={(e) => handleLongPress(e, depth)}>
             {name === '' ? (
                 !isPDFView && 
                     <View style={[styles.placeholder, focusedId === chordId && {backgroundColor: '#FF6F00'}]}/>
                 )
                 :
-                <Text style={[styles.chordText, focusedId === chordId && {color: 'red'}]}>{name}</Text>
+                <>
+                    {holdId === chordId &&
+                        <OptionSelectorVertical focusId={chordId} options={['Split', 'Triplet']} setOption={(option) => handleOption(option)} style={{position: 'absolute', left: 0, top: -48}}/>
+                    }
+                    <Text style={[styles.chordText, focusedId === chordId && {color: 'red'}]}>{name}</Text>
+                </>
             }
         </TouchableOpacity>
 
