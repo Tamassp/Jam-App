@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text, StyleSheet, ViewStyle, Pressable, TextInput } from 'react-native';
+import { View, Text, StyleSheet, ViewStyle, Pressable, TextInput, Keyboard } from 'react-native';
 import Bar, { BarProps } from '../Bar/Bar';
 import { LineProps } from '../Line/Line'
 import { Line } from '../Line'
@@ -9,7 +9,8 @@ import OptionSelector from '../OptionSelector/OptionSelector'
 import OptionSelectorVertical from '../OptionSelectorVertical/OptionSelectorVertical'
 import EditIcon from '../../icons/EditIcon'
 import { useFocus } from '../../context/FocusContext'
-
+import TriangleIcon from '../../icons/TriangleIcon'
+import SectionTitle from '../SectionTitle/SectionTitle'
 export interface SongSectionProps {
     songSectionId: string;
     title?: string;
@@ -40,22 +41,30 @@ const SongSection = ({
         console.log('NEW SECTION');
     }
 
-    const handleTitleChange = (title?: string) => {
+    const handleTitleChange = (newTitle?: string) => {
+        if(newTitle === title){
+            handleFocus("")
+            return
+        }
+
         // UPDATE THE TITLE
-        if(!title) {
+        if(!newTitle) {
             console.log("Default NEW TITLE")
             setSong(draft => {
                 draft.sections[songSectionId].title = 'NEW TITLE'
             })
         }
         else {
-            console.log('TITLE CHANGE: ' + title)
+            console.log('TITLE CHANGE: ' + newTitle)
             setSong(draft => {
-                draft.sections[songSectionId].title = title
+                draft.sections[songSectionId].title = newTitle
             })
         }
-        
     }
+
+    React.useEffect(() => {
+        handleFocus("")
+    },[title])
 
     const handleEditButtonPress = React.useCallback(() => {
         // setIsEditOpen(!isEditOpen)
@@ -111,17 +120,22 @@ const SongSection = ({
                 <Pressable style={styles.title} >
                     {/* <TextInput>{title}</TextInput> */}
                     {/* <Text>{title}</Text> */}
-                    <OptionSelector focusId={`TEXT_${songSectionId}`} setOption={handleTitleChange} text={title} options={['Verse', 'Chorus', 'Bridge']} />
+                    {/* <OptionSelector focusId={`TEXT_${songSectionId}`} setOption={handleTitleChange} text={title} options={['Verse', 'Chorus', 'Bridge']} backgroundColor='#ddaaaa' /> */}
+                    <SectionTitle focusId={`TEXT_${songSectionId}`} setOption={handleTitleChange} text={title} options={['Verse', 'Chorus', 'Bridge']} backgroundColor='#ddaaaa' />
                 </Pressable>
                 <Button 
                     onPress={handleEditButtonPress} 
                     icon={<EditIcon width={20} height={20} />}
                     style={{borderWidth: 0}}
+                    focusId={`EDIT_${songSectionId}`}
                 />
+                <View>
+                    <OptionSelectorVertical focusId={`EDIT_${songSectionId}`} style={styles.sectionOptions} options={["Add Repeat", "Do something", "Delete"]} text={'icon'} setOption={function (value: React.SetStateAction<string>): void {
+                        throw new Error('Function not implemented.')
+                    } } />
+                </View>
             </View>
-            <OptionSelectorVertical focusId={`EDIT_${songSectionId}`} style={styles.sectionOptions} options={["Add Repeat", "Do something", "Delete"]} text={'icon'} setOption={function (value: React.SetStateAction<string>): void {
-                    throw new Error('Function not implemented.')
-                } } />
+            
 
             {lines.length > 0 && lines.map((line, index) => (
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
@@ -171,7 +185,9 @@ const styles = StyleSheet.create({
     sectionOptions: {
         position: 'absolute',
         zIndex: 1,
-        marginTop: 16
+        top: -16,
+        left: 0,
+        // marginTop: 16
 
     },
     title: {
@@ -179,19 +195,19 @@ const styles = StyleSheet.create({
         zIndex: 1,
         // top: -20,
         // left: -10,
-        padding: 5,
-        backgroundColor: 'lightgreen',
-        borderRadius: 2,
+        //padding: 5,
+        // backgroundColor: 'lightgreen',
+        // borderRadius: 2,
     },
     titleWrapper: {
         position: 'absolute',
         zIndex: 1,
-        top: -20,
-        left: -10,
+        top: -32,
+        left: -20,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 5,
+        // padding: 5,
         
         // backgroundColor: '#f0f0f0',
     },

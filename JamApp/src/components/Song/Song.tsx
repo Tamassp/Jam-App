@@ -62,41 +62,43 @@ const Song = forwardRef<View, SongProps>(({
 
     // }
     return (
-        <ScrollView style={styles.containerStyle}>
+        <ScrollView keyboardShouldPersistTaps='handled' style={styles.containerStyle}>
             <View ref={ref}>
-            <View style={styles.titleSectionStyle}>
-                <DynamicTextInput 
-                    onFocus={handleOnTitleClick} 
-                    onChangeText={(newText) => onTitleChange(newText)} 
-                    style={styles.titleStyle}
-                    >
-                    {title}
-                </DynamicTextInput>
-            </View>
-            <View style={styles.songHeaderStyles}>
-                <Text>4/4</Text>
-                <Button onPress={() => setBarLength(2)}>
-                    set barlength to 2
-                </Button>
-                <Button onPress={() => setBarLength(1)}>
-                    set barlength to 1
-                </Button>
-                <DynamicTextInput 
-                    onFocus={handleOnArtistClick} 
-                    onChangeText={(newText) => onArtistChange(newText)} 
-                    style={styles.artistStyle}
-                    >
-                    {artist}
-                </DynamicTextInput>
-            </View>
-            {songSections.map((songSection, index) => (
-                <SongSection 
-                    songSectionId={index.toString()}
-                    key={index}
-                    backgroundColor={songSection.backgroundColor} 
-                    lines={songSection.lines}
-                    title={songSection.title} />
-            ))}
+                <View style={styles.titleSectionStyle}>
+                    <DynamicTextInput 
+                        onFocus={handleOnTitleClick} 
+                        onChangeText={(newText) => onTitleChange(newText)} 
+                        style={styles.titleStyle}
+                        >
+                        {title}
+                    </DynamicTextInput>
+                </View>
+                <View style={styles.songHeaderStyles}>
+                    <Text>4/4</Text>
+                    <Button onPress={() => setBarLength(2)}>
+                        set barlength to 2
+                    </Button>
+                    <Button onPress={() => setBarLength(1)}>
+                        set barlength to 1
+                    </Button>
+                    <DynamicTextInput 
+                        onFocus={handleOnArtistClick} 
+                        onChangeText={(newText) => onArtistChange(newText)} 
+                        style={styles.artistStyle}
+                        >
+                        {artist}
+                    </DynamicTextInput>
+                </View>
+                <View style={{gap: 16}}>
+                    {songSections.map((songSection, index) => (
+                        <SongSection 
+                            songSectionId={index.toString()}
+                            key={index}
+                            backgroundColor={songSection.backgroundColor} 
+                            lines={songSection.lines}
+                            title={songSection.title} />
+                    ))}
+                </View>
             </View>
             {isEditing && 
                 <View style={styles.newSection}>

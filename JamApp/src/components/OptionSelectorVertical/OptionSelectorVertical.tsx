@@ -8,7 +8,7 @@ export interface OptionSelectorVerticalProps extends ButtonProps {
     //open: boolean
     focusId: string
     options: string[]
-    text: string
+    //text: string
     setOption: React.Dispatch<React.SetStateAction<string>>
 }
 
@@ -17,7 +17,7 @@ const OptionSelectorVertical = ({
     //open,
     focusId,
     options,
-    text,
+    //text,
     setOption,
     style,
     ...props }: OptionSelectorVerticalProps): JSX.Element => {
@@ -30,13 +30,13 @@ const OptionSelectorVertical = ({
     if(isPDFView || focusedId != focusId) return null
     return (
         <View style={[styles.wrapper, style]}>
-            
             {options && options.map((option, index) => (
                 <TouchableOpacity
                     key={index}
                     onPress={() => setOption(option)}
+                    style={[styles.menuItem, {borderBottomColor: index == options.length - 1 ? 'transparent' : '#ccc'}]}
                 >
-                    <Text>{option}</Text>
+                    <Text style={{fontSize: 16}}>{option}</Text>
                 </TouchableOpacity>
             ))}
 
@@ -50,14 +50,20 @@ export interface OptionSelectorVerticalStyles {
 }
 
 const styles = StyleSheet.create({
+    menuItem: {
+        padding: 8,
+        backgroundColor: '#fff',
+        width: 128,
+        borderBottomWidth: 0.5,
+    },
     wrapper: {
         flexDirection: 'column',
-        gap: 4,
-        backgroundColor: '#f0f0f0',
-        padding: 8,
+        borderRadius: 8,
+        backgroundColor: '#fff',
+        //clipping child to make it rounded
+        overflow: 'hidden',
         width: 128,
-        // paddingVertical: 4,
-        // paddingHorizontal: 6,
+        boxShadow: '0 0 8px rgba(0,0,0,0.1)',
     },
 });
 

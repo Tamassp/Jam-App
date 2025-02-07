@@ -13,6 +13,7 @@ export interface IBar {
 
 export interface ILine {
     //id: string;
+    lineColor?: string;
     number?: number;
     lineLength?: number;
     bars: IBar[];

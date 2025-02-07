@@ -18,11 +18,19 @@ export const initialBar: IBar = {
                 children: []
             },
             {
-                name: "",
+                name: "G",
                 children: []
             }
         ]
     }
+    // {
+    //     name: "",
+    //     children: []
+    // },
+    // {
+    //     name: "G",
+    //     children: []
+    // }
     ]
 }
 
@@ -30,7 +38,7 @@ const initialBar2: IBar = {
     timeSignature: "4/4",
     chords: [
     {
-        name: "",
+        name: "Dm",
         children: []
     }
     ]
@@ -63,6 +71,7 @@ const initialBar3: IBar = {
 }
 
 export const initialLine: ILine = {
+    lineColor: '#aaaaaa',
     bars: [
         initialBar,
         initialBar2,
@@ -81,6 +90,7 @@ export const initialSong: ISong = {
             // backgroundColor: '#aaaaaa',
             lines: [
                 initialLine,
+                initialLine
             ]
         }
     ],

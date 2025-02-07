@@ -18,6 +18,7 @@ import Divider from '../Divider'
 import { useExportAsPdf } from '../../hooks/useExportAsPdf'
 import ViewShot from 'react-native-view-shot'
 import { testDB } from '../../context/testDB'
+import { getNextChord, getNextItem } from '../../helpers/songEditor'
 
 interface SongEditorProps {
     // song: ISong;
@@ -49,10 +50,10 @@ const SongEditor: React.FC<SongEditorProps> = ({
     const [newLine, setNewLine] = useState<BarProps[]>([newBar]);
     const [newSongSection, setNewSongSection] = useState<SongSectionProps>({songSectionId: '1', lines: [initialLine]});
 
-    const [chordIndex, setChordIndex] = useState<number>(0);
-    const [barIndex, setBarIndex] = useState<number>(0);
-    const [lineIndex, setLineIndex] = useState<number>(0);
-    const [sectionIndex, setSectionIndex] = useState<number>(0);
+    const [chordIndex, setChordIndex] = useState<string>('0');
+    const [barIndex, setBarIndex] = useState<string>('0');
+    const [lineIndex, setLineIndex] = useState<string>('0');
+    const [sectionIndex, setSectionIndex] = useState<string>('0');
 
     const [newChord, setNewChord] = useState<string>('');
 
@@ -78,8 +79,8 @@ const SongEditor: React.FC<SongEditorProps> = ({
 
         // WITH NESTED SPREAD OPERATOR IT IS NOT OPTIMAL, THEREFORE USEIMMER IS USED
         
-        if(focusedId === (null || "")) return;
-        
+        if(focusedId === (null || "" || undefined)) return;
+        if (!sectionIndex || !lineIndex || !barIndex || !chordIndex) return;
         //USING USE-IMMER INSTEAD
         console.log("INDEXES", sectionIndex, lineIndex, barIndex, chordIndex);
         
@@ -88,13 +89,46 @@ const SongEditor: React.FC<SongEditorProps> = ({
         if((focusedId.slice(3,4) === (barLength-1).toString()) &&
         (focusedId.slice(2,3) === (lineLength-1).toString())) {
             console.log("LAST CHORD, LAST BAR");
-            handleNewLine(sectionIndex);
+            handleNewLine(Number(sectionIndex));
         }
 
 
-        setSong(draft => {
-            console.log("DRAFTTTT", song.sections[0].lines[0].bars[0].chords[0].name);
-            draft.sections[sectionIndex].lines[lineIndex].bars[barIndex].chords[chordIndex].name = key;
+        // setSong(draft => {
+        //     console.log("DRAFTTTT", song.sections[0].lines[0].bars[0].chords[0].name);
+        //     draft.sections[Number(sectionIndex)].lines[Number(lineIndex)].bars[Number(barIndex)].chords[chordIndex].name = key;
+        // });
+
+        setSong((draft) => {
+            // Navigate to the appropriate section, line, and bar
+            const targetBar = draft.sections[Number(sectionIndex)]
+                .lines[Number(lineIndex)]
+                .bars[Number(barIndex)];
+            
+            console.log("TARGETBAR", targetBar);
+            console.log("chordIndex", chordIndex);
+
+            // Function to navigate and insert at the correct chord location
+            const insertChord = (chordsArray, chordIndexPath, newChordName) => {
+                // Parse the first level of the index
+                const currentIndex = Number(chordIndexPath.slice(0, 1));
+                const remainingIndex = chordIndexPath.slice(1);
+                console.log("CURRENTINDEX", currentIndex);
+                console.log("REMAININGINDEX", remainingIndex);
+
+                // Check if we are at the correct level to insert
+                if (remainingIndex.length === 0) {
+                    chordsArray[currentIndex].name = newChordName;
+                } else {
+                    // Continue navigating down into `children`
+                    if (!chordsArray[currentIndex].children) {
+                        chordsArray[currentIndex].children = [];
+                    }
+                    insertChord(chordsArray[currentIndex].children, remainingIndex, newChordName);
+                }
+            };
+
+            // Call the recursive function starting from the target bar's chords
+            insertChord(targetBar.chords, chordIndex, key);
         });
 
         // const [isLastChord,set] = (chordIndex === barLength-1);
@@ -102,37 +136,40 @@ const SongEditor: React.FC<SongEditorProps> = ({
 
         console.log("FocusedIDDDDDD", focusedId);
         
-        
+        // Example Usage:
+        const nextItem = getNextItem(song, [sectionIndex, lineIndex, barIndex, 0, 1]); // Path to the current node (CHORDS TOGETHER OR SEPARATE????)
+        //const nextItem = getNextChord(song.sections, [sectionIndex, lineIndex, barIndex, ]); // Path to the current node (CHORDS TOGETHER OR SEPARATE????)
+        console.log("NEXT", nextItem);
+        // handleFocus(nextItem);
 
-
-        console.log("FI", focusedId.slice(2,3));
-        if((focusedId.slice(3,4) === (barLength-1).toString()) &&
-        (focusedId.slice(2,3) === (lineLength-1).toString())) {
-            console.log("LAST CHORD, LAST BAR");
+        // console.log("FI", focusedId.slice(2,3));
+        // if((focusedId.slice(3,4) === (barLength-1).toString()) &&
+        // (focusedId.slice(2,3) === (lineLength-1).toString())) {
+        //     console.log("LAST CHORD, LAST BAR");
             
-            //Increasing line index
-            const tempStr = focusedId.slice(0,1);
-            const increasedStr = (parseInt(focusedId.slice(1,2)) + 1).toString();
-            //Increasing focus ID for the next line
-            handleFocus(tempStr + increasedStr + '00');
-        }
-        //Increasing bar index
-        else if(focusedId.slice(3,4) === (barLength-1).toString()) {
-            console.log("BARLENGTH", barLength);
+        //     //Increasing line index
+        //     const tempStr = focusedId.slice(0,1);
+        //     const increasedStr = (parseInt(focusedId.slice(1,2)) + 1).toString();
+        //     //Increasing focus ID for the next line
+        //     handleFocus(tempStr + increasedStr + '00');
+        // }
+        // //Increasing bar index
+        // else if(focusedId.slice(3,4) === (barLength-1).toString()) {
+        //     console.log("BARLENGTH", barLength);
             
-            //Increasing bar index
-            const tempStr = focusedId.slice(0,2);
-            const increasedStr = (parseInt(focusedId.slice(2,3)) + 1).toString();
+        //     //Increasing bar index
+        //     const tempStr = focusedId.slice(0,2);
+        //     const increasedStr = (parseInt(focusedId.slice(2,3)) + 1).toString();
             
-            handleFocus(tempStr + increasedStr + '0');
-        }
-        //Increasing chord index
-        else {
-            const tempStr = focusedId.slice(0,3);
-            const increasedStr = (parseInt(focusedId.slice(3,4)) + 1).toString();
-            //Increasing focus ID for the next chord
-            handleFocus(tempStr + increasedStr);
-        }
+        //     handleFocus(tempStr + increasedStr + '0');
+        // }
+        // //Increasing chord index
+        // else {
+        //     const tempStr = focusedId.slice(0,3);
+        //     const increasedStr = (parseInt(focusedId.slice(3,4)) + 1).toString();
+        //     //Increasing focus ID for the next chord
+        //     handleFocus(tempStr + increasedStr);
+        // }
     }
 
     const handleLongPress = (e, key) => {
@@ -142,16 +179,20 @@ const SongEditor: React.FC<SongEditorProps> = ({
     useEffect(() => {
         // const tempBarindex = Array.from(focusedId)[0];
         if(focusedId === null || focusedId === undefined) return;
-        setSectionIndex(Number(focusedId.charAt(0)))
-        setLineIndex(Number(focusedId.charAt(1)))
-        setBarIndex(Number(focusedId.charAt(2)))
-        setChordIndex(Number(focusedId.charAt(3)))
+        setSectionIndex(focusedId.charAt(0))
+        setLineIndex(focusedId.charAt(1))
+        setBarIndex(focusedId.charAt(2))
+        setChordIndex(focusedId.substring(3)); // Extract all digits from the 4th onwards
         
         
         // console.log("BARINDEX", barIndex);
     }, [focusedId])
 
-    
+    //test indexes
+    useEffect(() => {
+        console.log("INDEXES2", sectionIndex, lineIndex, barIndex, chordIndex);
+        console.log('chordindex', chordIndex);
+    }, [sectionIndex, lineIndex, barIndex, chordIndex])
     
 
     // useEffect(() => {
