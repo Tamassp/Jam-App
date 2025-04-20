@@ -38,7 +38,7 @@ const SongEditor: React.FC<SongEditorProps> = ({
 
     const {song, barLength, setBarLength, getAllSongs, setSong, saveSong, loadSong} = useSongContext();
 
-    const [isChartListOpen, setIsChartListOpen] = useState<boolean>(false)
+    const [isChartListOpen, setIsChartListOpen] = useState<boolean>(true)
 
     const lineLength = 4;
     // const barLength = 4;
@@ -266,9 +266,9 @@ const SongEditor: React.FC<SongEditorProps> = ({
                 <ViewShot ref={viewShotRef}>
                     <Song ref={viewRef} title={song.title} artist={song.author} songSections={song.sections} handleNewSection={handleNewSection}/>
                 </ViewShot>
-                {isChartListOpen &&
-                    <ChartList setIsChartListOpen={setIsChartListOpen} />
-                }
+                {/* {isChartListOpen && */}
+                    <ChartList isChartListVisible={isChartListOpen} setIsChartListOpen={setIsChartListOpen} />
+                {/* } */}
                 
                 
                 <View style={styles.keyboard}>

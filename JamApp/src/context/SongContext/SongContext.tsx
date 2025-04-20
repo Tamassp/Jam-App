@@ -100,14 +100,16 @@ export const initialSong: ISong = {
 }
 
 export interface ISongContext {
-    allSongs: string[]
+    allSongs: ISong[],
+    allSongKeys: string[]
     song: ISong,
     initialLine: ILine,
     initialBar: IBar,
     initialChord: IChord,
     barLength: number,
     setBarLength: (length: number) => void,
-    getAllSongs: () => Promise<string[]>,
+    getAllSongs: (keys: string[]) => Promise<ISong[]>,
+    getAllSongKeys: () => Promise<string[]>,
     setSong: (draft) => Updater<ISong>,
     saveSong: (key: string) => void,
     loadSong: (key: string) => void,
@@ -115,20 +117,23 @@ export interface ISongContext {
 
 export const SongContext = React.createContext({
     allSongs: [],
+    allSongKeys: [],
     song: initialSong,
     initialLine: initialLine,
     initialBar: initialBar,
     initialChord: initialChord,
     barLength: 4,
     setBarLength: (length: number) => {},
-    getAllSongs: async () => [{}],
+    getAllSongs: async (keys: string[]) => [{}],
+    getAllSongKeys: async () => [{}],
     setSong: (draft) => {},
     saveSong: (key) => {},
     loadSong: (key) => {},
 })
 
 export const SongProvider = ({ children }: { children: React.ReactNode }): JSX.Element => {
-    const [allSongs, setAllSongs] = useImmer<string[]>([])
+    const [allSongs, setAllSongs] = useImmer<ISong[]>([])
+    const [allSongKeys, setAllSongKeys] = useImmer<string[]>([])
     const [song, setSong] = useImmer<ISong>(initialSong);
     const [barLength, setBarLength] = React.useState<number>(4)
 
@@ -156,19 +161,47 @@ export const SongProvider = ({ children }: { children: React.ReactNode }): JSX.E
         }
     }
 
-    const getAllSongs = async () => {
+    const getAllSongKeys = async () => {
         try {
             const keys: readonly string[] = await AsyncStorage.getAllKeys()
             // return [...keys] as string[] // Convert to mutable array
-            setAllSongs([...keys] as string[])
+            setAllSongKeys([...keys] as string[])
+
+            getAllSongs([...keys])
         } catch (error) {
             console.error('Error getting all keys:', error)
             return []
         }
     }
 
+    const getAllSongs = async (keys: string[]) => {
+        try {
+            const songs: ISong[] = []
+            for (const key of keys) {
+                console.log('Key:', key)
+                const jsonValue = await AsyncStorage.getItem(key)
+                console.log('Raw value from storage:', jsonValue) // Debugging
+
+                if (jsonValue != null) {
+                    try {
+                        const parsedValue = JSON.parse(jsonValue)
+                        songs.push(parsedValue)
+                    } catch (parseError) {
+                        console.error(`Error parsing key "${key}":`, parseError)
+                    }
+                }
+            }
+            console.log('All songs:', songs)
+            setAllSongs(songs)
+            return songs
+        } catch (error) {
+            console.error('Error getting all songs:', error)
+            return []
+        }
+    }
+
     return (
-        <SongContext.Provider value={{ allSongs, song, initialChord, initialBar, initialLine, barLength, setBarLength, getAllSongs, setSong, saveSong, loadSong }}>
+        <SongContext.Provider value={{ allSongs, allSongKeys, song, initialChord, initialBar, initialLine, barLength, setBarLength, getAllSongs, getAllSongKeys, setSong, saveSong, loadSong }}>
             {children}
         </SongContext.Provider>
     )

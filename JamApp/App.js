@@ -1,3 +1,4 @@
+import 'react-native-reanimated';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { FocusProvider } from './src/context/FocusContext';
