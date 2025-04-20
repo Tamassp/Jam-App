@@ -12,24 +12,24 @@ export const initialBar: IBar = {
     chords: [
     {
         // name: "",
-        children: [
+        subChords: [
             {
                 name: "",
-                children: []
+                subChords: []
             },
             {
                 name: "G",
-                children: []
+                subChords: []
             }
         ]
     }
     // {
     //     name: "",
-    //     children: []
+    //     subChords: []
     // },
     // {
     //     name: "G",
-    //     children: []
+    //     subChords: []
     // }
     ]
 }
@@ -39,7 +39,7 @@ const initialBar2: IBar = {
     chords: [
     {
         name: "Dm",
-        children: []
+        subChords: []
     }
     ]
 }
@@ -48,22 +48,22 @@ const initialBar3: IBar = {
     timeSignature: "4/4",
     chords: [
     {
-        children: [
+        subChords: [
             {
-                children: [
+                subChords: [
                     {
                         name: "C",
-                        children: []
+                        subChords: []
                     },
                     {
                         name: "",
-                        children: []
+                        subChords: []
                     }
                 ]
             },
             {
                 name: "",
-                children: []
+                subChords: []
             }
         ]
     }

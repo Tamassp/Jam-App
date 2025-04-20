@@ -18,7 +18,7 @@ import Divider from '../Divider'
 import { useExportAsPdf } from '../../hooks/useExportAsPdf'
 import ViewShot from 'react-native-view-shot'
 import { testDB } from '../../context/testDB'
-import { getNextChord, getNextItem } from '../../helpers/songEditor'
+import { chordPathToId, findNextLeafChordWithPath } from '../../helpers/songEditor'
 
 interface SongEditorProps {
     // song: ISong;
@@ -73,104 +73,152 @@ const SongEditor: React.FC<SongEditorProps> = ({
             draft.sections[sectionI].lines.push(placeholderLine);
         });
     };
-    
-    const handleKey = (e , key) => {
-        //Using the ids, we can determine where to add the new chord
 
-        // WITH NESTED SPREAD OPERATOR IT IS NOT OPTIMAL, THEREFORE USEIMMER IS USED
-        
-        if(focusedId === (null || "" || undefined)) return;
-        if (!sectionIndex || !lineIndex || !barIndex || !chordIndex) return;
-        //USING USE-IMMER INSTEAD
+    const handleKey = (e, key) => {
+        console.log("KEY", key);
+        console.log("FOCUSEDID", focusedId);
+        if (!focusedId || typeof focusedId !== "string") return;
+
+        const idParts = focusedId.split("-"); // ['00', '01', '02', '03', ...]
+        if (idParts.length < 4) return;
+
+        const sectionIndex = parseInt(idParts[0], 10);
+        const lineIndex = parseInt(idParts[1], 10);
+        const barIndex = parseInt(idParts[2], 10);
+        const chordIndex = parseInt(idParts[3], 10);
+        const subChordPath = idParts.slice(4).map(n => parseInt(n, 10));
+
+        console.log("KEY", key);
         console.log("INDEXES", sectionIndex, lineIndex, barIndex, chordIndex);
-        
-
-        //IF THERE IS NO NEXT LINE, CREATE A NEW LINE IN THE SAME SECTION
-        if((focusedId.slice(3,4) === (barLength-1).toString()) &&
-        (focusedId.slice(2,3) === (lineLength-1).toString())) {
-            console.log("LAST CHORD, LAST BAR");
-            handleNewLine(Number(sectionIndex));
-        }
-
-
-        // setSong(draft => {
-        //     console.log("DRAFTTTT", song.sections[0].lines[0].bars[0].chords[0].name);
-        //     draft.sections[Number(sectionIndex)].lines[Number(lineIndex)].bars[Number(barIndex)].chords[chordIndex].name = key;
-        // });
+        console.log("SUBCHORDPATH", subChordPath);
+        console.log("FOCUSEDID", focusedId);
 
         setSong((draft) => {
-            // Navigate to the appropriate section, line, and bar
-            const targetBar = draft.sections[Number(sectionIndex)]
-                .lines[Number(lineIndex)]
-                .bars[Number(barIndex)];
-            
-            console.log("TARGETBAR", targetBar);
-            console.log("chordIndex", chordIndex);
+            const targetBar = draft.sections[sectionIndex]
+                .lines[lineIndex]
+                .bars[barIndex];
 
-            // Function to navigate and insert at the correct chord location
-            const insertChord = (chordsArray, chordIndexPath, newChordName) => {
-                // Parse the first level of the index
-                const currentIndex = Number(chordIndexPath.slice(0, 1));
-                const remainingIndex = chordIndexPath.slice(1);
-                console.log("CURRENTINDEX", currentIndex);
-                console.log("REMAININGINDEX", remainingIndex);
+            const insertChord = (chordsArray, path, newChordName) => {
+                const currentIndex = path[0];
+                const remaining = path.slice(1);
 
-                // Check if we are at the correct level to insert
-                if (remainingIndex.length === 0) {
+                if (remaining.length === 0) {
                     chordsArray[currentIndex].name = newChordName;
                 } else {
-                    // Continue navigating down into `children`
-                    if (!chordsArray[currentIndex].children) {
-                        chordsArray[currentIndex].children = [];
+                    if (!chordsArray[currentIndex].subChords) {
+                        chordsArray[currentIndex].subChords = [];
                     }
-                    insertChord(chordsArray[currentIndex].children, remainingIndex, newChordName);
+                    insertChord(chordsArray[currentIndex].subChords, remaining, newChordName);
                 }
             };
 
-            // Call the recursive function starting from the target bar's chords
-            insertChord(targetBar.chords, chordIndex, key);
+            insertChord(targetBar.chords, [chordIndex, ...subChordPath], key);
         });
 
-        // const [isLastChord,set] = (chordIndex === barLength-1);
-        // const [isLastBar] = (barIndex === lineLength-1);
+        const nextChordWithPath = findNextLeafChordWithPath(song, focusedId); // pass current path string
+        if (nextChordWithPath) {
+            const nextId = chordPathToId(nextChordWithPath.path);
+            handleFocus(nextId); // update your focusedId state
+        }
+    };
+    
+    // const handleKey = (e , key) => {
+    //     //Using the ids, we can determine where to add the new chord
 
-        console.log("FocusedIDDDDDD", focusedId);
+    //     // WITH NESTED SPREAD OPERATOR IT IS NOT OPTIMAL, THEREFORE USEIMMER IS USED
         
-        // Example Usage:
-        const nextItem = getNextItem(song, [sectionIndex, lineIndex, barIndex, 0, 1]); // Path to the current node (CHORDS TOGETHER OR SEPARATE????)
-        //const nextItem = getNextChord(song.sections, [sectionIndex, lineIndex, barIndex, ]); // Path to the current node (CHORDS TOGETHER OR SEPARATE????)
-        console.log("NEXT", nextItem);
-        // handleFocus(nextItem);
+    //     if(focusedId === (null || "" || undefined)) return;
+    //     if (!sectionIndex || !lineIndex || !barIndex || !chordIndex) return;
+    //     //USING USE-IMMER INSTEAD
+    //     console.log("INDEXES", sectionIndex, lineIndex, barIndex, chordIndex);
+        
 
-        // console.log("FI", focusedId.slice(2,3));
-        // if((focusedId.slice(3,4) === (barLength-1).toString()) &&
-        // (focusedId.slice(2,3) === (lineLength-1).toString())) {
-        //     console.log("LAST CHORD, LAST BAR");
+    //     //IF THERE IS NO NEXT LINE, CREATE A NEW LINE IN THE SAME SECTION
+    //     if((focusedId.slice(3,4) === (barLength-1).toString()) &&
+    //     (focusedId.slice(2,3) === (lineLength-1).toString())) {
+    //         console.log("LAST CHORD, LAST BAR");
+    //         handleNewLine(Number(sectionIndex));
+    //     }
+
+    //     setSong((draft) => {
+    //         // Navigate to the appropriate section, line, and bar
+    //         const targetBar = draft.sections[Number(sectionIndex)]
+    //             .lines[Number(lineIndex)]
+    //             .bars[Number(barIndex)];
             
-        //     //Increasing line index
-        //     const tempStr = focusedId.slice(0,1);
-        //     const increasedStr = (parseInt(focusedId.slice(1,2)) + 1).toString();
-        //     //Increasing focus ID for the next line
-        //     handleFocus(tempStr + increasedStr + '00');
-        // }
-        // //Increasing bar index
-        // else if(focusedId.slice(3,4) === (barLength-1).toString()) {
-        //     console.log("BARLENGTH", barLength);
+    //         console.log("TARGETBAR", targetBar);
+    //         console.log("chordIndex", chordIndex);
+
+    //         // Function to navigate and insert at the correct chord location
+    //         const insertChord = (chordsArray, chordIndexPath, newChordName) => {
+    //             // Parse the first level of the index
+    //             const currentIndex = Number(chordIndexPath.slice(0, 1));
+    //             const remainingIndex = chordIndexPath.slice(1);
+    //             console.log("CURRENTINDEX", currentIndex);
+    //             console.log("REMAININGINDEX", remainingIndex);
+
+    //             // Check if we are at the correct level to insert
+    //             if (remainingIndex.length === 0) {
+    //                 chordsArray[currentIndex].name = newChordName;
+    //             } else {
+    //                 // Continue navigating down into `children`
+    //                 if (!chordsArray[currentIndex].children) {
+    //                     chordsArray[currentIndex].children = [];
+    //                 }
+    //                 insertChord(chordsArray[currentIndex].children, remainingIndex, newChordName);
+    //             }
+    //         };
+
+    //         // Call the recursive function starting from the target bar's chords
+    //         insertChord(targetBar.chords, chordIndex, key);
+    //     });
+
+    //     // const [isLastChord,set] = (chordIndex === barLength-1);
+    //     // const [isLastBar] = (barIndex === lineLength-1);
+
+    //     console.log("FocusedIDDDDDD", focusedId);
+        
+    //     const currentChordObject = ???
+    //     const nextChord = findNextLeafChordWithPath(song,  )
+    //     if (nextChord) {
+    //         console.log("NEXTCHORD", nextChord);
+    //     }
+
+    //     // Example Usage:
+    //     //const nextItem = getNextItem(song, [sectionIndex, lineIndex, barIndex, 0, 1]); // Path to the current node (CHORDS TOGETHER OR SEPARATE????)
+    //     //const nextItem = getNextChord(song.sections, [sectionIndex, lineIndex, barIndex, ]); // Path to the current node (CHORDS TOGETHER OR SEPARATE????)
+    //     //console.log("NEXT", nextItem);
+    //     // handleFocus(nextItem);
+
+    //     // console.log("FI", focusedId.slice(2,3));
+    //     // if((focusedId.slice(3,4) === (barLength-1).toString()) &&
+    //     // (focusedId.slice(2,3) === (lineLength-1).toString())) {
+    //     //     console.log("LAST CHORD, LAST BAR");
             
-        //     //Increasing bar index
-        //     const tempStr = focusedId.slice(0,2);
-        //     const increasedStr = (parseInt(focusedId.slice(2,3)) + 1).toString();
+    //     //     //Increasing line index
+    //     //     const tempStr = focusedId.slice(0,1);
+    //     //     const increasedStr = (parseInt(focusedId.slice(1,2)) + 1).toString();
+    //     //     //Increasing focus ID for the next line
+    //     //     handleFocus(tempStr + increasedStr + '00');
+    //     // }
+    //     // //Increasing bar index
+    //     // else if(focusedId.slice(3,4) === (barLength-1).toString()) {
+    //     //     console.log("BARLENGTH", barLength);
             
-        //     handleFocus(tempStr + increasedStr + '0');
-        // }
-        // //Increasing chord index
-        // else {
-        //     const tempStr = focusedId.slice(0,3);
-        //     const increasedStr = (parseInt(focusedId.slice(3,4)) + 1).toString();
-        //     //Increasing focus ID for the next chord
-        //     handleFocus(tempStr + increasedStr);
-        // }
-    }
+    //     //     //Increasing bar index
+    //     //     const tempStr = focusedId.slice(0,2);
+    //     //     const increasedStr = (parseInt(focusedId.slice(2,3)) + 1).toString();
+            
+    //     //     handleFocus(tempStr + increasedStr + '0');
+    //     // }
+    //     // //Increasing chord index
+    //     // else {
+    //     //     const tempStr = focusedId.slice(0,3);
+    //     //     const increasedStr = (parseInt(focusedId.slice(3,4)) + 1).toString();
+    //     //     //Increasing focus ID for the next chord
+    //     //     handleFocus(tempStr + increasedStr);
+    //     // }
+    // }
 
     const handleLongPress = (e, key) => {
         console.log("LONG PRESS option", key);

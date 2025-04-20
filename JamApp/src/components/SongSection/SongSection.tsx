@@ -13,6 +13,7 @@ import TriangleIcon from '../../icons/TriangleIcon'
 import SectionTitle from '../SectionTitle/SectionTitle'
 export interface SongSectionProps {
     songSectionId: string;
+    sectionIndex: number;
     title?: string;
     lines: LineProps[];
     // setLines?: React.Dispatch<React.SetStateAction<LineProps[]>>;
@@ -26,6 +27,7 @@ export interface SongSectionProps {
 const SongSection = ({
     title = 'Section Title',
     songSectionId,
+    sectionIndex,
     lines = [],
     // setLines = () => {},
     backgroundColor = '#ffffff', 
@@ -139,11 +141,14 @@ const SongSection = ({
 
             {lines.length > 0 && lines.map((line, index) => (
                 <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <Line 
-                        lineId={songSectionId + index}
-                        key={index} 
-                        bars={line.bars} 
-                        newChord={newChord} />
+                     <Line
+                        key={`${sectionIndex}-${index}`}
+                        sectionIndex={sectionIndex}
+                        lineIndex={index}
+                        bars={line.bars}
+                        lineLength={line.lineLength}
+                        newChord={newChord}
+                    />
                     <Pressable onPress={() => handleNewLine(index)} style={{backgroundColor: 'red', padding: 8, margin: 2}}>
                         <Text>+</Text>
                     </Pressable>

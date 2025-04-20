@@ -9,7 +9,7 @@ import OptionSelectorVertical from '../OptionSelectorVertical/OptionSelectorVert
 
 export interface ChordProps extends IChord {
     chordId: string;
-    children: IChord[];
+    subChords: IChord[];
     depth?: number;
     beats?: number;
 }
@@ -21,7 +21,7 @@ const Chord = ({
     beats = 4,
     // perBass,
     // type = 'Major',
-    children,
+    subChords,
     ...props
 }: ChordProps): JSX.Element => {
     const { focusedId, handleFocus, holdId, handleHold } = useFocus();
@@ -56,14 +56,14 @@ const Chord = ({
     const handleSplit = () => {
         setSong(draft => {
             console.log('Draft', draft.sections?.['0']);
-            console.log('Draft', draft.sections?.['0']?.lines?.['0'].bars?.['0']?.chords?.['0'].children)
+            console.log('Draft', draft.sections?.['0']?.lines?.['0'].bars?.['0']?.chords?.['0'].subChords)
             if (
-                draft.sections?.['0']?.lines?.['0'].bars?.['0']?.chords?.['0'].children
+                draft.sections?.['0']?.lines?.['0'].bars?.['0']?.chords?.['0'].subChords
             ) {
                 draft.sections?.['0']?.lines?.['0'].bars?.['1']?.chords.splice(0, 1, {
-                    children: [
-                        { name: "", children: [] },
-                        { name: "", children: [] }
+                    subChords: [
+                        { name: "", subChords: [] },
+                        { name: "", subChords: [] }
                     ]
                 });
             } else {
@@ -73,12 +73,21 @@ const Chord = ({
         )
     }
 
-    if (children && children.length > 0) {
+    if (subChords && subChords.length > 0) {
         return (
         <View style={[styles.chordGroup, { width: "100%" } as ViewStyle]}>
-            {children.map((child, index) => (
-                <Chord key={index} chordId={chordId + index} name={child.name} depth={depth + 1} children={child.children}/>
-            ))}
+            {subChords.map((child, index) => {
+                const childId = `${chordId}-${index.toString().padStart(2, '0')}`;
+                return (
+                    <Chord
+                    key={childId}
+                    chordId={childId}
+                    name={child.name}
+                    subChords={child.subChords}
+                    depth={depth + 1}
+                    />
+                );
+                })}
         </View>
         );
     }

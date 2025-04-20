@@ -4,36 +4,35 @@ import Bar from '../Bar'
 import { BarProps } from '../Bar/Bar'
 
 export interface LineProps {
-    lineId: string;
+    sectionIndex: number;
+    lineIndex: number;
     bars: BarProps[];
     lineLength?: number;
     newChord?: string;
 }
 
-const Line = ({ 
-    lineId,
-    bars, 
-    lineLength = 4, 
-    newChord, 
-    ...props 
+const Line = ({
+    sectionIndex,
+    lineIndex,
+    bars,
+    lineLength = 4,
+    newChord,
+    ...props
 }: LineProps): JSX.Element => {
-
-    // if(bars.length < lineLength) {
-    //     const initialBarLength = bars.length;
-    //     for(let i = 0; i < lineLength - initialBarLength; i++) {
-    //         bars.push({chords: [' 1']});       
-    //     }
-    // }
-
     return (
         <View style={styles.container}>
-            {bars.map((bar, index) => (
-                // <View key={index} style={styles.bar}>
-                    <Bar barId={lineId + index} chords={bar.chords} newChord={newChord} />
-                // </View>
+            {bars.map((bar, barIndex) => (
+                <Bar
+                    key={`${sectionIndex}-${lineIndex}-${barIndex}`}
+                    sectionIndex={sectionIndex}
+                    lineIndex={lineIndex}
+                    barIndex={barIndex}
+                    chords={bar.chords}
+                    // beats={bar.beats ?? 4} // fallback if beats is not in BarProps
+                    newChord={newChord}
+                    barId={''}                
+                />
             ))}
-
-
         </View>
     );
 }

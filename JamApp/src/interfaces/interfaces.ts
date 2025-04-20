@@ -1,8 +1,9 @@
 export interface IChord {
+    // id: string;
     name?: string;
     perBass?: string;
     type?: 'Major' | 'Minor' | 'Diminished' | 'Augmented';
-    children?: IChord[];
+    subChords?: IChord[];
 }
 
 export interface IBar {
@@ -29,4 +30,16 @@ export interface ISong {
     title: string;
     author?: string;
     sections: ISongSection[];
+}
+
+export type TChordPath = {
+  sectionIndex: number;
+  lineIndex: number;
+  barIndex: number;
+  chordIndices: number[]; // position in chord tree, including subChords
+};
+
+export type TLeafChordWithPath = {
+  chord: IChord;
+  path: TChordPath;
 }

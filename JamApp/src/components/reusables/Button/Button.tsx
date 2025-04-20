@@ -52,6 +52,7 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-start',
         paddingVertical: 4,
         paddingHorizontal: 6,
+        borderRadius: 4,
     },
 });
 

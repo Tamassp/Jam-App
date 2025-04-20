@@ -90,13 +90,14 @@ const Song = forwardRef<View, SongProps>(({
                     </DynamicTextInput>
                 </View>
                 <View style={{gap: 16}}>
-                    {songSections.map((songSection, index) => (
+                    {songSections.map((songSection, sectionIndex) => (
                         <SongSection 
-                            songSectionId={index.toString()}
-                            key={index}
-                            backgroundColor={songSection.backgroundColor} 
+                            songSectionId={sectionIndex.toString()}
+                            key={sectionIndex}
+                            backgroundColor={songSection.backgroundColor}
                             lines={songSection.lines}
-                            title={songSection.title} />
+                            title={songSection.title} 
+                            sectionIndex={sectionIndex} />
                     ))}
                 </View>
             </View>

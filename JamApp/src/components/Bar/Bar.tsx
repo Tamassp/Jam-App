@@ -12,12 +12,18 @@ import { IBar } from '../../interfaces/Interfaces'
 // }
 
 export interface BarProps extends IBar{
+    sectionIndex: number;
+    lineIndex: number;
+    barIndex: number;
     barId: string;
     barLength?: number;
     newChord?: string;
 }
 
 const Bar = React.memo( function Bar ({
+    sectionIndex,
+    lineIndex,
+    barIndex,
     barId,
     chords, 
     barLength, 
@@ -45,9 +51,25 @@ const Bar = React.memo( function Bar ({
     return (
         <View style={[styles.container, {width: '50%'}]}>
             <View style={styles.chordContainer}>
-                {chords.map((chord, index) => (
-                    <Chord key={index} chordId={barId + index} name={chord.name} children={chord.children} beats={beats}/>
-                ))}
+                {chords.map((chord, chordIndex) => {
+                    const chordPath = [
+                        sectionIndex,
+                        lineIndex,
+                        barIndex,
+                        chordIndex
+                    ].map(n => n.toString().padStart(2, '0')).join('-');
+
+                    return (
+                        <Chord
+                        key={chordPath}
+                        chordId={chordPath}
+                        name={chord.name}
+                        subChords={chord.subChords}
+                        beats={beats}
+                        depth={0}
+                        />
+                    );
+                    })}
             </View>
         </View>
     );
