@@ -5,6 +5,7 @@ import { useFocus } from '../../context/FocusContext'
 import { usePDF } from '../../context/PDFContext'
 import { useSongContext } from '../../context/SongContext/SongContext'
 import OptionSelectorVertical from '../OptionSelectorVertical/OptionSelectorVertical'
+import { getChordRef, getParentChordRef } from '../../helpers/songEditor'
 
 
 export interface ChordProps extends IChord {
@@ -28,6 +29,15 @@ const Chord = ({
     const { isPDFView, setIsPDFView } = usePDF();
     const { setSong } = useSongContext();
 
+    // const options = ['Split', 'Triplet']
+    // if (subChords?.length > 0) {
+    //     options.push('Unsplit');
+    // }
+
+    const isSubChord = chordId.split("-").length > 4; // 4 parts = root chord
+    const canUnsplit = isSubChord;
+    const options = ['Split', 'Triplet', ...(canUnsplit ? ['Unsplit'] : [])];
+    
     // Calculate width based on depth relative to the bar's width
     const splitNumber = beats % 2 == 0 ? 2 : beats;
     const widthPercentage = `${100 / (splitNumber ** depth)}%`;
@@ -45,56 +55,126 @@ const Chord = ({
             case 'Split':
                 handleSplit();
                 break;
-            // case 'Triplet':
-            //     handleTriplet();
-            //     break;
+            case 'Triplet':
+                handleTriplet();
+                break;
+            case 'Unsplit':
+                handleUnsplit();
+                break;
             default:
                 break;
         }
     }
 
     const handleSplit = () => {
+        if (!holdId) return;
+
+        const idParts = holdId.split("-").map(Number);
+        const [sectionIndex, lineIndex, barIndex, chordIndex, ...subChordPath] = idParts;
+
         setSong(draft => {
-            console.log('Draft', draft.sections?.['0']);
-            console.log('Draft', draft.sections?.['0']?.lines?.['0'].bars?.['0']?.chords?.['0'].subChords)
-            if (
-                draft.sections?.['0']?.lines?.['0'].bars?.['0']?.chords?.['0'].subChords
-            ) {
-                draft.sections?.['0']?.lines?.['0'].bars?.['1']?.chords.splice(0, 1, {
-                    subChords: [
-                        { name: "", subChords: [] },
-                        { name: "", subChords: [] }
-                    ]
-                });
-            } else {
-                console.error("The required structure is missing!");
+            const chords = draft.sections[sectionIndex]
+            ?.lines[lineIndex]
+            ?.bars[barIndex]
+            ?.chords;
+
+            if (!chords) {
+                console.error("Chord path invalid");
+                return;
             }
-        }
-        )
-    }
+
+            const targetChord = getChordRef(chords, [chordIndex, ...subChordPath]);
+            if (!targetChord) {
+                console.error("Target chord not found");
+                return;
+            }
+
+            targetChord.subChords = [
+                { name: "", subChords: [] },
+                { name: "", subChords: [] }
+            ];
+        });
+    };
+
+    const handleTriplet = () => {
+        if (!holdId) return;
+
+        const idParts = holdId.split("-").map(Number);
+        const [sectionIndex, lineIndex, barIndex, chordIndex, ...subChordPath] = idParts;
+
+        setSong(draft => {
+            const chords = draft.sections[sectionIndex]
+            ?.lines[lineIndex]
+            ?.bars[barIndex]
+            ?.chords;
+
+            const targetChord = getChordRef(chords, [chordIndex, ...subChordPath]);
+            if (!targetChord) return;
+
+            targetChord.subChords = [
+            { name: "", subChords: [] },
+            { name: "", subChords: [] },
+            { name: "", subChords: [] }
+            ];
+        });
+    };
+
+    const handleUnsplit = () => {
+        if (!holdId) return;
+
+        const idParts = holdId.split("-").map(Number);
+        const [sectionIndex, lineIndex, barIndex, ...chordPath] = idParts;
+
+        setSong(draft => {
+            const chords = draft.sections[sectionIndex]
+            ?.lines[lineIndex]
+            ?.bars[barIndex]
+            ?.chords;
+            console.log("Chords: ", chords);
+            if (!chords) return;
+
+            const parentData = getParentChordRef(chords, chordPath);
+            if (!parentData || !parentData.parent || !parentData.parent.subChords) return;
+
+            const heldSubChord = parentData.parent.subChords[parentData.index];
+            console.log("Held SubChord: ", heldSubChord);
+            // Replace the parent chord with the held subChord's data
+            parentData.parent.subChords = undefined;
+            parentData.parent.name = heldSubChord.name ?? "";
+            parentData.parent.type = heldSubChord.type;
+            parentData.parent.perBass = heldSubChord.perBass;
+            // optionally: merge further down, discard other subChords, etc.
+        });
+    };
 
     if (subChords && subChords.length > 0) {
         return (
-        <View style={[styles.chordGroup, { width: "100%" } as ViewStyle]}>
+            <View style={[styles.chordGroup, { width: '100%' } as ViewStyle]}>
             {subChords.map((child, index) => {
                 const childId = `${chordId}-${index.toString().padStart(2, '0')}`;
+                const siblingCount = subChords.length;
+
                 return (
+                <View key={childId} style={{ width: `${100 / siblingCount}%` } as ViewStyle}>
                     <Chord
-                    key={childId}
                     chordId={childId}
                     name={child.name}
                     subChords={child.subChords}
                     depth={depth + 1}
                     />
+                </View>
                 );
-                })}
-        </View>
+            })}
+            </View>
         );
     }
-    // console.log('widthPercentage', widthPercentage);
-    // console.log('ChordId', chordId);
+    
     return (
-        <TouchableOpacity style={[styles.container, { width: widthPercentage } as ViewStyle]} onPress={() => handleFocus(chordId)} onLongPress={(e) => handleLongPress(e, depth)}>
+        <TouchableOpacity
+            style={[styles.container, { width: '100%' } as ViewStyle]} // Full width since it's already inside a wrapper
+            onPress={() => handleFocus(chordId)}
+            onLongPress={(e) => handleLongPress(e, depth)}
+            >
             {name === '' ? (
                 !isPDFView && 
                     <View style={[styles.placeholder, focusedId === chordId && {backgroundColor: '#FF6F00'}]}/>
@@ -102,13 +182,12 @@ const Chord = ({
                 :
                 <>
                     {holdId === chordId &&
-                        <OptionSelectorVertical focusId={chordId} options={['Split', 'Triplet']} setOption={(option) => handleOption(option)} style={{position: 'absolute', left: 0, top: -48}}/>
+                        <OptionSelectorVertical focusId={chordId} options={options} setOption={(option) => handleOption(option)} style={{position: 'absolute', left: 0, top: -48}}/>
                     }
                     <Text style={[styles.chordText, focusedId === chordId && {color: 'red'}]}>{name}</Text>
                 </>
             }
         </TouchableOpacity>
-
     );
 };
 

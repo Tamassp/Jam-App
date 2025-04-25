@@ -63,6 +63,43 @@ export function chordPathToId(path: TChordPath): string {
   return [...base, ...chordPart].join("-");
 }
 
+export function getChordRef(chords: IChord[], path: number[]): IChord | null {
+  if (path.length === 0) return null;
+
+  const currentIndex = path[0];
+  const remainingPath = path.slice(1);
+
+  if (!chords[currentIndex]) return null;
+
+  if (remainingPath.length === 0) {
+    return chords[currentIndex]; // leaf
+  }
+
+  if (!chords[currentIndex].subChords) {
+    return null;
+  }
+
+  return getChordRef(chords[currentIndex].subChords!, remainingPath);
+}
+
+export function getParentChordRef(
+  chords: IChord[],
+  path: number[]
+): { parent: IChord | null; index: number } | null {
+  if (path.length < 2) return null; // no parent
+
+  const parentPath = path.slice(0, -1); // all but last
+  const targetIndex = path[path.length - 1];
+
+  const parentChord = getChordRef(chords, parentPath);
+  if (!parentChord || !parentChord.subChords) return null;
+
+  return {
+    parent: parentChord,
+    index: targetIndex
+  };
+}
+
 //OLD SOLUTION
 // export function getNextItem(song, path) {
 //     let currentNode = song.sections; // Start at the root object
