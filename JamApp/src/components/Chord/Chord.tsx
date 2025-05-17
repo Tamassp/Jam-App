@@ -6,6 +6,7 @@ import { usePDF } from '../../context/PDFContext'
 import { useSongContext } from '../../context/SongContext/SongContext'
 import OptionSelectorVertical from '../OptionSelectorVertical/OptionSelectorVertical'
 import { getChordRef, getParentChordRef } from '../../helpers/songEditor'
+import { JSX } from 'react'
 
 
 export interface ChordProps extends IChord {
@@ -13,6 +14,8 @@ export interface ChordProps extends IChord {
     subChords: IChord[];
     depth?: number;
     beats?: number;
+    ghost?: boolean;
+    onActivate?: (chordId: string) => void; // Callback for ghost activation
 }
 
 const Chord = ({
@@ -20,6 +23,8 @@ const Chord = ({
     name = 'C',
     depth = 0,
     beats = 4,
+    ghost = false,
+    onActivate,
     // perBass,
     // type = 'Major',
     subChords,
@@ -147,6 +152,14 @@ const Chord = ({
         });
     };
 
+    const handleChordPress = (chordId: string) => {
+        if (ghost) {
+            onActivate?.(chordId); // Pass back which ghost was tapped
+        } else {
+            handleFocus(chordId);
+        }
+    }
+
     if (subChords && subChords.length > 0) {
         return (
             <View style={[styles.chordGroup, { width: '100%' } as ViewStyle]}>
@@ -161,6 +174,7 @@ const Chord = ({
                     name={child.name}
                     subChords={child.subChords}
                     depth={depth + 1}
+                    ghost={ghost}
                     />
                 </View>
                 );
@@ -171,8 +185,8 @@ const Chord = ({
     
     return (
         <TouchableOpacity
-            style={[styles.container, { width: '100%' } as ViewStyle]} // Full width since it's already inside a wrapper
-            onPress={() => handleFocus(chordId)}
+            style={[styles.container, { opacity: ghost ? 0.7 : 1 } as ViewStyle]} // Full width since it's already inside a wrapper
+            onPress={() => handleChordPress(chordId)}
             onLongPress={(e) => handleLongPress(e, depth)}
             >
             {name === '' ? (
@@ -195,6 +209,8 @@ const styles = StyleSheet.create({
     container: {
         padding: 8,
         backgroundColor: '#f0f0f0',
+        height: '100%',
+        width: '100%'
         //Make line wrappable
         // paddingHorizontal: 32,
         // padding: 1

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import Svg, { ClipPath, Defs, G, Path, Rect } from 'react-native-svg'
 import { usePDF } from '../context/PDFContext'
+import { JSX } from 'react'
 export interface EditIconProps {
     width?: number;
     height?: number;

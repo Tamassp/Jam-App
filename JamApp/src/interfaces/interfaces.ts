@@ -43,3 +43,8 @@ export type TLeafChordWithPath = {
   chord: IChord;
   path: TChordPath;
 }
+
+export type SplitRow = {
+  bars: IBar[];       // Subset of bars to render in that row
+  chordsInRow: number; // Total number of chords in that row
+};

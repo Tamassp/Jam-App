@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { JSX } from 'react'
 import { View, Text, StyleSheet, ViewStyle, TouchableOpacity, Animated, GestureResponderEvent } from 'react-native';
 
 export interface CheckboxProps {

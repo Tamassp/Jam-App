@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { JSX } from 'react'
 import { TouchableOpacity, StyleSheet, ViewStyle, Text, Animated } from 'react-native';
 
 export interface ToggleProps {

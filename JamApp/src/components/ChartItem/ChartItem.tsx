@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
 import { StyleSheet, View, ViewStyle, TextStyle, Text, Modal, TouchableOpacity, Dimensions, ViewProps } from 'react-native';
 import Divider from '../Divider'
 import { useSongContext } from '../../context/SongContext/SongContext'
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from "react-native-reanimated";
 import Label from '../reusables/Label/Label'
 import TitleSubtitle from '../reusables/TitleSubtitle/TitleSubtitle'
+import React from 'react'
 
 const { height, width } = Dimensions.get("window");
 
@@ -19,7 +19,7 @@ const ChartItem = ({
     artist,
     index,
     style,
-}: ChartItemProps): JSX.Element => {
+}: ChartItemProps): React.JSX.Element => {
 
     return (
         <View key={index} style={style}>

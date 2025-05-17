@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { JSX } from 'react'
 import { Text, StyleSheet, ViewStyle, View } from 'react-native';
 
 export interface VerticalDividerProps {

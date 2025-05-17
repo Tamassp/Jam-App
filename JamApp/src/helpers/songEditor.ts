@@ -1,4 +1,4 @@
-import { IChord, TChordPath, ISong, TLeafChordWithPath } from "../interfaces/Interfaces"
+import { IChord, TChordPath, ISong, TLeafChordWithPath, ILine, SplitRow, IBar } from "../interfaces/Interfaces"
 
 function isLeafChord(chord: IChord): boolean {
   return !chord.subChords || chord.subChords.length === 0;
@@ -98,6 +98,108 @@ export function getParentChordRef(
     parent: parentChord,
     index: targetIndex
   };
+}
+
+export function splitLineIntoRows(bars: IBar[], maxChordsPerRow: number) {
+  const rows: { bars: IBar[]; chordsInRow: number }[] = [];
+  let currentRowBars: IBar[] = [];
+  let currentChordCount = 0;
+
+  for (const bar of bars) {
+    const chordCountInBar = bar.chords.reduce(
+      (acc, chord) => acc + countLeafChords(chord),
+      0
+    );
+
+    if (currentChordCount + chordCountInBar > maxChordsPerRow && currentRowBars.length > 0) {
+      // push current row and start new one
+      rows.push({ bars: currentRowBars, chordsInRow: currentChordCount });
+      currentRowBars = [];
+      currentChordCount = 0;
+    }
+
+    currentRowBars.push(bar);
+    currentChordCount += chordCountInBar;
+  }
+
+  // push any leftover bars into the last row
+  if (currentRowBars.length > 0) {
+    rows.push({ bars: currentRowBars, chordsInRow: currentChordCount });
+  }
+
+  return rows;
+}
+
+export function countLeafChords(chord: IChord): number {
+  if (!chord.subChords || chord.subChords.length === 0) {
+    return 1;
+  }
+
+  return chord.subChords.reduce((acc, subChord) => acc + countLeafChords(subChord), 0);
+}
+
+export function buildChordTree(totalChords: number): IChord {
+  if (totalChords <= 1) {
+    return { name: "", subChords: [] };
+  }
+
+  const half = Math.floor(totalChords / 2);
+  const remainder = totalChords - half;
+
+  return {
+    name: "",
+    subChords: [
+      buildChordTree(half),
+      buildChordTree(remainder),
+    ]
+  };
+}
+
+export function generateGhostLine(barsPerLine: number, chordsPerBar: number): ILine {
+  const createChordTree = (n: number): IChord => {
+    if (n <= 1) return { name: "", subChords: [] };
+    const half = Math.floor(n / 2);
+    const rest = n - half;
+    return {
+      name: "",
+      subChords: [createChordTree(half), createChordTree(rest)],
+    };
+  };
+
+  const bars: IBar[] = Array.from({ length: barsPerLine }, (_, barIndex) => ({
+    number: barIndex,
+    timeSignature: '4/4',
+    chords: [createChordTree(chordsPerBar)],
+  }));
+
+  return {
+    number: -1, // ghost indicator
+    bars,
+    lineColor: '#ddd', // optional for ghost effect
+  };
+}
+
+export function containsChordName(chord: IChord): boolean {
+  if (chord.name && chord.name.trim() !== '') return true;
+  return chord.subChords?.some(containsChordName) ?? false;
+}
+
+export function isLineFilled(line: ILine): boolean {
+  return line.bars.every(bar => {
+    const totalLeaves = bar.chords.reduce((acc, chord) => acc + countLeafChords(chord), 0);
+    const filledLeaves = bar.chords.reduce(
+      (acc, chord) => acc + countFilledLeafChords(chord),
+      0
+    );
+    return filledLeaves >= totalLeaves;
+  });
+}
+
+function countFilledLeafChords(chord: IChord): number {
+  if (!chord.subChords || chord.subChords.length === 0) {
+    return chord.name && chord.name.trim() !== '' ? 1 : 0;
+  }
+  return chord.subChords.reduce((acc, sub) => acc + countFilledLeafChords(sub), 0);
 }
 
 //OLD SOLUTION

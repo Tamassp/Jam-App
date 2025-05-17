@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { JSX, useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ViewStyle, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { SongSectionProps } from '../SongSection/SongSection'
 import Song, { SongProps } from '../Song/Song'
-import { ISong, ISongSection } from '../../interfaces/Interfaces'
+import { ILine, ISong, ISongSection } from '../../interfaces/Interfaces'
 import CustomKeyboard from '../CustomKeyboard/CustomKeyboard'
 import { BarProps } from '../Bar/Bar'
 import { LineProps } from '../Line/Line'
@@ -19,6 +19,7 @@ import { useExportAsPdf } from '../../hooks/useExportAsPdf'
 import ViewShot from 'react-native-view-shot'
 import { testDB } from '../../context/testDB'
 import { chordPathToId, findNextLeafChordWithPath } from '../../helpers/songEditor'
+import NewSongModal from '../NewSongModal/NewSongModal'
 
 interface SongEditorProps {
     // song: ISong;
@@ -36,18 +37,20 @@ const SongEditor: React.FC<SongEditorProps> = ({
     }
 
 
-    const {song, barLength, setBarLength, getAllSongs, setSong, saveSong, loadSong} = useSongContext();
+    const {song, barLength, ghostLine, setGhostLine, setBarLength, createNewSong, getAllSongs, setSong, saveSong, loadSong} = useSongContext();
 
     const [isChartListOpen, setIsChartListOpen] = useState<boolean>(true)
+    const [isNewSongModalVisible, setNewSongModalVisible] = useState(false);
+    const [isCreatingNewSong, setIsCreatingNewSong] = useState(false);
 
     const lineLength = 4;
     // const barLength = 4;
 
     const [bars, setBars] = useState<BarProps[]>([]);
-    const [lines, setLines] = useState<LineProps[]>([]);
+    const [lines, setLines] = useState<ILine[]>([]);
 
-    const [newBar, setNewBar] = useState<ChordProps[]>({name: ['']});
-    const [newLine, setNewLine] = useState<BarProps[]>([newBar]);
+    // const [newBar, setNewBar] = useState<ChordProps[]>({name: ['']});
+    // const [newLine, setNewLine] = useState<BarProps[]>([newBar]);
     const [newSongSection, setNewSongSection] = useState<SongSectionProps>({songSectionId: '1', lines: [initialLine]});
 
     const [chordIndex, setChordIndex] = useState<string>('0');
@@ -65,14 +68,14 @@ const SongEditor: React.FC<SongEditorProps> = ({
     const { viewRef, createAndSharePDF } = useCreateAndSharePDF()
     const { viewShotRef, captureView } = useExportAsPdf()
 
-    const handleNewLine = (sectionI: number) => {
-        console.log("NEW LINE: ", newLine);
+    // const handleNewLine = (sectionI: number) => {
+    //     console.log("NEW LINE: ", newLine);
     
-        setSong(draft => {
-            console.log("HEYY");
-            draft.sections[sectionI].lines.push(placeholderLine);
-        });
-    };
+    //     setSong(draft => {
+    //         console.log("HEYY");
+    //         draft.sections[sectionI].lines.push(placeholderLine);
+    //     });
+    // };
 
     const handleKey = (e, key) => {
         console.log("KEY", key);
@@ -92,6 +95,48 @@ const SongEditor: React.FC<SongEditorProps> = ({
         console.log("INDEXES", sectionIndex, lineIndex, barIndex, chordIndex);
         console.log("SUBCHORDPATH", subChordPath);
         console.log("FOCUSEDID", focusedId);
+
+        const lastLineIndex = song.sections[sectionIndex].lines.length - 1;
+        console.log("LASTLINEINDEX", lastLineIndex);
+
+        if (lineIndex === lastLineIndex && ghostLine) {
+            setSong(draft => {
+                // 1. Add the ghost line
+                draft.sections[sectionIndex].lines.push(ghostLine);
+
+                // 2. Insert the typed chord
+                const targetBar = draft.sections[sectionIndex]
+                    .lines[lineIndex]
+                    .bars[barIndex];
+
+                const insertChord = (chordsArray, path, newChordName) => {
+                    const currentIndex = path[0];
+                    const remaining = path.slice(1);
+                    if (remaining.length === 0) {
+                    chordsArray[currentIndex].name = newChordName;
+                    } else {
+                    if (!chordsArray[currentIndex].subChords) {
+                        chordsArray[currentIndex].subChords = [];
+                    }
+                    insertChord(chordsArray[currentIndex].subChords, remaining, newChordName);
+                }
+            };
+
+            insertChord(targetBar.chords, [chordIndex, ...subChordPath], key);
+            });
+
+            // 3. Clear ghost line
+            setGhostLine(null);
+
+            // 4. Focus continues automatically
+            const nextChordWithPath = findNextLeafChordWithPath(song, focusedId);
+            if (nextChordWithPath) {
+            const nextId = chordPathToId(nextChordWithPath.path);
+            handleFocus(nextId);
+            }
+
+            return; // ⛔ Don't run the normal setSong() below again
+        }
 
         setSong((draft) => {
             const targetBar = draft.sections[sectionIndex]
@@ -268,13 +313,37 @@ const SongEditor: React.FC<SongEditorProps> = ({
 
     }
 
-    
-    
-    
-    const handleNewSong = () => {
-        //Initialize new song
-        loadSong()
+    const handleInitiateNewSong = () => {
+        setNewSongModalVisible(true);
+    };
+
+    const handleNewSong = (timeSignature: string, chordsPerBar: number) => {
+        console.log('Create song with:', timeSignature, chordsPerBar);
+        setIsCreatingNewSong(true);
+        createNewSong(timeSignature, chordsPerBar);
+        // handleFocus("00-00-00-00");
+        setNewSongModalVisible(false);
+    };
+
+    useEffect(() => {
+    if (isCreatingNewSong && song.sections?.length > 0) {
+        const firstSection = song.sections[0];
+        const firstLine = firstSection.lines?.[0];
+        const firstBar = firstLine?.bars?.[0];
+        const firstChord = firstBar?.chords?.[0];
+
+        if (!firstChord) return;
+
+        let newFocusedId = "00-00-00-00";
+
+        if (firstChord.subChords && firstChord.subChords.length > 0) {
+            newFocusedId += "-00"; // ➡️ dive into first subchord if exists
+        }
+
+        handleFocus(newFocusedId);
+        setIsCreatingNewSong(false);
     }
+    }, [song]);
 
     const handleOnSave = () => {
         console.log("SAVING SONG");
@@ -310,18 +379,23 @@ const SongEditor: React.FC<SongEditorProps> = ({
                 <Text>new line</Text>
             </TouchableOpacity> */}
             <View style={styles.container}>
-                <MenuBar onChartListOpen={handleOpenChartlist} onNewSheet={handleNewSong} onSave={handleOnSave} onExport={() => captureView(false)} />
+                <MenuBar onChartListOpen={handleOpenChartlist} onNewSheet={handleInitiateNewSong} onSave={handleOnSave} onExport={() => captureView(false)} />
                 <ViewShot ref={viewShotRef}>
                     <Song ref={viewRef} title={song.title} artist={song.author} songSections={song.sections} handleNewSection={handleNewSection}/>
                 </ViewShot>
                 {/* {isChartListOpen && */}
-                    <ChartList isChartListVisible={isChartListOpen} setIsChartListOpen={setIsChartListOpen} />
+                    {/* <ChartList isChartListVisible={isChartListOpen} setIsChartListOpen={setIsChartListOpen} /> */}
                 {/* } */}
                 
                 
                 <View style={styles.keyboard}>
                     <CustomKeyboard onPress={handleKey} onLongPressOption={handleLongPress} />
                 </View>
+                <NewSongModal
+                    visible={isNewSongModalVisible}
+                    onClose={() => setNewSongModalVisible(false)}
+                    onCreate={handleNewSong}
+                />
             </View>
         </TouchableWithoutFeedback>
     );

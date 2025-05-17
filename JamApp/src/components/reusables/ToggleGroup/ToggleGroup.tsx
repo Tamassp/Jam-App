@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
 import Toggle from '../Toggle/Toggle'
+import { JSX } from 'react'
 
 export interface ToggleGroupProps {
     toggles?: { label: string; isActive?: boolean }[];

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { JSX } from 'react'
 import Svg, { Path } from 'react-native-svg';
 
 export interface TriangleIconProps {

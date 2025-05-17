@@ -25,7 +25,7 @@ const Song = forwardRef<View, SongProps>(({
   ...props
 }, ref: Ref<View>) => {
     // Implement the component logic here
-     const {setBarLength, setSong} = useSongContext();
+     const {setChordsPerBar, setSong} = useSongContext();
      const [inputWidth, setInputWidth] = React.useState(0)
      const [isEditing, setIsEditing] = React.useState(true)
      
@@ -75,12 +75,12 @@ const Song = forwardRef<View, SongProps>(({
                 </View>
                 <View style={styles.songHeaderStyles}>
                     <Text>4/4</Text>
-                    <Button onPress={() => setBarLength(2)}>
+                    {/* <Button onPress={() => setBarLength(2)}>
                         set barlength to 2
                     </Button>
                     <Button onPress={() => setBarLength(1)}>
                         set barlength to 1
-                    </Button>
+                    </Button> */}
                     <DynamicTextInput 
                         onFocus={handleOnArtistClick} 
                         onChangeText={(newText) => onArtistChange(newText)} 

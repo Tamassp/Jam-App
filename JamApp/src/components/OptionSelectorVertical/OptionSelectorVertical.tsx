@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ViewStyle, TouchableOpacity, Animated, Touchabl
 import  Button, {ButtonProps} from '../reusables/Button/Button';
 import { useFocus } from '../../context/FocusContext'
 import { usePDF } from '../../context/PDFContext'
+import { JSX } from 'react'
 
 export interface OptionSelectorVerticalProps extends ButtonProps {
     //open: boolean

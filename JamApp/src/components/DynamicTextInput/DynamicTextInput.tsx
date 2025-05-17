@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { JSX } from 'react';
 import { TextInput } from 'react-native'
 
 export interface DynamicTextInputProps extends React.ComponentProps<typeof TextInput> {

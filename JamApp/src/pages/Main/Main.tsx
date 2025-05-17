@@ -1,5 +1,3 @@
-import * as React from 'react';
-import { useCallback } from 'react';
 import { View, StyleSheet, ViewStyle, TouchableWithoutFeedback } from 'react-native';
 import MenuBar from '../../components/MenuBar/MenuBar'
 import SongEditor from '../../components/SongEditor/SongEditor'
@@ -9,6 +7,7 @@ import { useImmer } from "use-immer";
 import ChartList from '../../components/ChartList'
 import { useFocus } from '../../context/FocusContext'
 import ChordChart from '../../components/Test/Test'
+import React from 'react'
 
 
 
@@ -22,7 +21,7 @@ const Main = ({
     onNewSheet,
     onSave,
     onExport,
-    ...props }: MainProps): JSX.Element => {
+    ...props }: MainProps): React.JSX.Element => {
     
     const emptySong: ISong = {
         title: '',

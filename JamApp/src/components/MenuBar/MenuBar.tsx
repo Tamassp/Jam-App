@@ -6,6 +6,7 @@ import Checkbox from '../reusables/Checkbox/Checkbox'
 import Toggle from '../reusables/Toggle/Toggle'
 import Switch from '../reusables/Switch/Switch'
 import ToggleGroup from '../reusables/ToggleGroup/ToggleGroup'
+import { JSX } from 'react'
 
 export interface MenuBarProps {
     onNewSheet?: () => void;

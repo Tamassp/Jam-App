@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ViewProps } from 'react-native';
 import Chord, { ChordProps } from '../Chord/Chord'
 import { useSongContext } from '../../context/SongContext/SongContext'
 import { IBar } from '../../interfaces/Interfaces'
-
+import { JSX } from 'react'
 
 // export interface Chord {
 //     name?: string;
@@ -11,13 +11,15 @@ import { IBar } from '../../interfaces/Interfaces'
 //     chords?: Chord[];
 // }
 
-export interface BarProps extends IBar{
+export interface BarProps extends IBar, ViewProps {
     sectionIndex: number;
     lineIndex: number;
     barIndex: number;
     barId: string;
     barLength?: number;
     newChord?: string;
+    ghost?: boolean;
+    onActivate?: () => void;
 }
 
 const Bar = React.memo( function Bar ({
@@ -29,17 +31,12 @@ const Bar = React.memo( function Bar ({
     barLength, 
     newChord,
     timeSignature = '4/4',
+    ghost = false,
+    onActivate,
      ...props 
 }: BarProps): JSX.Element {
     const { barLength: globalBarLength } = useSongContext()
     barLength = barLength || globalBarLength;
-    const addNewChord = () => {
-        if (newChord) {
-            console.log('newChord', newChord);
-            
-            // chords.push(newChord);
-        }
-    }
 
     React.useLayoutEffect(() => {
         console.log('BarID', barId);
@@ -49,7 +46,7 @@ const Bar = React.memo( function Bar ({
 
 
     return (
-        <View style={[styles.container, {width: '50%'}]}>
+        <View style={[styles.container]} {...props}>
             <View style={styles.chordContainer}>
                 {chords.map((chord, chordIndex) => {
                     const chordPath = [
@@ -67,6 +64,8 @@ const Bar = React.memo( function Bar ({
                         subChords={chord.subChords}
                         beats={beats}
                         depth={0}
+                        ghost={ghost}
+                        onActivate={onActivate}
                         />
                     );
                     })}
@@ -78,15 +77,18 @@ const Bar = React.memo( function Bar ({
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
+        flex: 1,
         // justifyContent: 'space-around',
         borderRightWidth: 1,
         padding: 5,
+        //height: 32,
         // backgroundColor: '#bada55'
     },
     chordContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         width: '100%',
+        height: 48
     },
     
 });

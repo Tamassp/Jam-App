@@ -2,6 +2,7 @@ import * as React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, GestureResponderEvent, TouchableOpacityProps, Modal, PanResponder } from 'react-native';
 import ToggleGroup from '../reusables/ToggleGroup/ToggleGroup'
 import VerticalDivider from '../reusables/VerticalDivider/VerticalDivider'
+import { JSX } from 'react'
 // import { SongContext } from '../../context/SongContext/SongContext';
 
 export interface CustomKeyboardProps /*extends TouchableOpacityProps*/ {

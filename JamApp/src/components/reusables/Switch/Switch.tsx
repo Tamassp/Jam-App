@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { View, StyleSheet, Animated, TouchableOpacity, ViewStyle } from 'react-native';
 import Label from '../Label/Label'
+import { JSX } from 'react'
 
 export interface SwitchProps {
     isOn?: boolean;

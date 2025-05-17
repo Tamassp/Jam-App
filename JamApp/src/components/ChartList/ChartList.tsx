@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { JSX, useEffect } from 'react';
 import { StyleSheet, View, ViewStyle, TextStyle, Text, Modal, TouchableOpacity, Dimensions, ViewProps } from 'react-native';
 import Divider from '../Divider'
 import { useSongContext } from '../../context/SongContext/SongContext'

@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { View, Text, StyleSheet, ViewStyle, TouchableOpacity, Animated, TouchableOpacityProps, GestureResponderEvent } from 'react-native';
 import { useFocus } from '../../../context/FocusContext'
+import { JSX } from 'react'
 
 export interface ButtonProps extends TouchableOpacityProps {
     icon?: JSX.Element;

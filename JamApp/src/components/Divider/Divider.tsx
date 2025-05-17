@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { JSX } from 'react';
 import { StyleSheet, View, ViewStyle, TextStyle, Text } from 'react-native';
 
 interface DividerProps {

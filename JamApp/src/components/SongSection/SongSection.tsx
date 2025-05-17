@@ -11,11 +11,14 @@ import EditIcon from '../../icons/EditIcon'
 import { useFocus } from '../../context/FocusContext'
 import TriangleIcon from '../../icons/TriangleIcon'
 import SectionTitle from '../SectionTitle/SectionTitle'
+import { generateGhostLine, isLineFilled } from '../../helpers/songEditor'
+import { ILine } from '../../interfaces/Interfaces'
+import { JSX } from 'react'
 export interface SongSectionProps {
     songSectionId: string;
     sectionIndex: number;
     title?: string;
-    lines: LineProps[];
+    lines: ILine[];
     // setLines?: React.Dispatch<React.SetStateAction<LineProps[]>>;
     backgroundColor?: string;
     // bars: BarProps[];
@@ -36,8 +39,12 @@ const SongSection = ({
     // isEditing = true,
     ...props }: SongSectionProps): JSX.Element => {
     const { focusedId, handleFocus } = useFocus()
-    const { initialLine, setSong } = useSongContext()
-    // const [isEditOpen, setIsEditOpen] = React.useState<boolean>(false);
+
+    const { song, initialLine, barsPerLine, chordsPerBar, ghostLine, setGhostLine, setSong } = useSongContext()
+    const lastLine = lines[lines.length - 1];
+
+    // const shouldShowGhostLine = isLineFilled(lastLine);
+    // const ghostLine = shouldShowGhostLine ? generateGhostLine(barLength, chordsPerBar) : null;
 
     const handleOnPress = () => {
         console.log('NEW SECTION');
@@ -69,7 +76,6 @@ const SongSection = ({
     },[title])
 
     const handleEditButtonPress = React.useCallback(() => {
-        // setIsEditOpen(!isEditOpen)
         if(focusedId == `EDIT_${songSectionId}`) {
             handleFocus("")
         } else {
@@ -116,6 +122,21 @@ const SongSection = ({
         console.log("LINES: " + JSON.stringify(lines))
     }, [lines])
 
+    const handleActivateGhostLine = () => {
+        setSong(draft => {
+        const newLine = generateGhostLine(barsPerLine, chordsPerBar);
+        draft.sections[sectionIndex].lines.push(newLine);
+        });
+    };
+
+    // GENERATE A GHOST LINE IF THE LAST LINE IS FILLED
+    React.useEffect(() => {
+        const lastLine = song.sections[sectionIndex].lines.at(-1);
+        if (isLineFilled(lastLine) && !ghostLine) {
+            setGhostLine(generateGhostLine(barsPerLine, chordsPerBar));
+        }
+    }, [song]);
+
     return (
         <View style={[styles.container, {backgroundColor}]}>
             <View style={styles.titleWrapper}>
@@ -149,17 +170,31 @@ const SongSection = ({
                         lineLength={line.lineLength}
                         newChord={newChord}
                     />
-                    <Pressable onPress={() => handleNewLine(index)} style={{backgroundColor: 'red', padding: 8, margin: 2}}>
-                        <Text>+</Text>
-                    </Pressable>
-                    <Pressable onPress={() => handleDeleteLine(index)} style={{backgroundColor: 'red', padding: 8, margin: 2}}>
-                        <Text>-</Text>
-                    </Pressable>
-                    <Pressable onPress={() => handleCopyLine(index)} style={{backgroundColor: 'red', padding: 8, margin: 2}}>
-                        <Text>Copy</Text>
-                    </Pressable>
+                    {focusedId === `EDIT_${songSectionId}` &&
+                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                            <Pressable onPress={() => handleNewLine(index)} style={{backgroundColor: 'red', padding: 8, margin: 2}}>
+                                <Text>+</Text>
+                            </Pressable>
+                            <Pressable onPress={() => handleDeleteLine(index)} style={{backgroundColor: 'red', padding: 8, margin: 2}}>
+                                <Text>-</Text>
+                            </Pressable>
+                            <Pressable onPress={() => handleCopyLine(index)} style={{backgroundColor: 'red', padding: 8, margin: 2}}>
+                                <Text>Copy</Text>
+                            </Pressable>
+                        </View>
+                    }
                 </View>
             ))}
+
+            {ghostLine && (
+                <Line
+                    bars={ghostLine.bars}
+                    sectionIndex={sectionIndex}
+                    lineIndex={lines.length}
+                    ghost
+                    onActivate={handleActivateGhostLine}
+                />
+            )}
         </View>
     );
 }
