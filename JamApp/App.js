@@ -11,6 +11,7 @@ import SongEditor from './src/components/SongEditor/SongEditor'
 import MenuBar from './src/components/MenuBar/MenuBar';
 import Main from './src/pages/Main'
 import { SongProvider } from './src/context/SongContext/SongContext'
+import { ActiveChordProvider } from './src/context/SongContext/ActiveChordContext';
 import { PDFProvider } from './src/context/PDFContext'
 // import StorybookUIRoot from './.storybook'
 //export { default } from './.storybook';
@@ -75,11 +76,13 @@ const App = () => {
 
   return (
     <SongProvider>
-      <FocusProvider>
-        <PDFProvider>
-          <Main />
-        </PDFProvider>
-      </FocusProvider>
+      <ActiveChordProvider>
+        <FocusProvider>
+          <PDFProvider>
+            <Main />
+          </PDFProvider>
+        </FocusProvider>
+      </ActiveChordProvider>
     </SongProvider>
 
   );

@@ -2,15 +2,20 @@ import * as React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, GestureResponderEvent, TouchableOpacityProps, Modal, PanResponder } from 'react-native';
 import ToggleGroup from '../reusables/ToggleGroup/ToggleGroup'
 import VerticalDivider from '../reusables/VerticalDivider/VerticalDivider'
-import { JSX } from 'react'
+import { JSX, useEffect, useState } from 'react'
+import { TChordQuality } from '../../interfaces/Interfaces'
+import { useActiveChord } from '../../context/SongContext/ActiveChordContext'
+import { useSongContext } from '../../context/SongContext/SongContext'
+import { useFocus } from '../../context/FocusContext'
+import { getChordById } from '../../helpers/songEditor'
 // import { SongContext } from '../../context/SongContext/SongContext';
 
 export interface CustomKeyboardProps /*extends TouchableOpacityProps*/ {
-    onPress: (e: GestureResponderEvent, key) => void;
+    onChordChange: (e: GestureResponderEvent, root: string, quality: TChordQuality, extensions: string[]) => void;
     onLongPressOption?: (option: string) => void;
 }
 
-const CustomKeyboard = ({ onPress, onLongPressOption /*onPress*/ }: CustomKeyboardProps): JSX.Element => {
+const CustomKeyboard = ({ onChordChange, onLongPressOption /*onPress*/ }: CustomKeyboardProps): JSX.Element => {
     //HERE OR IN THE EDITOR?
     // const { setSong } = React.useContext(SongContext);
 
@@ -20,12 +25,35 @@ const CustomKeyboard = ({ onPress, onLongPressOption /*onPress*/ }: CustomKeyboa
     const majors = ['Db', 'Ab', 'Eb', 'Bb', 'F', 'C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Back']
     const minors = ['Ebm', 'Bbm', 'Fm', 'Cm', 'Gm', 'Dm', 'Am', 'Em', 'Bm', 'F#m', 'C#m', 'G#m', 'Mpty']
 
+    // We need current root, quality and extensions, if a chord is reselected
+    const { activeChord, setActiveChord } = useActiveChord();
+    const { focusedId } = useFocus();
+    const { song,  } = useSongContext();
+
+    // const [root, setRoot] = useState<string>("");
+    // const [quality, setQuality] = useState<TChordQuality | undefined>();
+    // const [extensions, setExtensions] = useState<string[]>([]);
+
     const [showPopup, setShowPopup] = React.useState(false);
   const [popupPosition, setPopupPosition] = React.useState({ x: 0, y: 0 });
   const [selectedOption, setSelectedOption] = React.useState(null);
 
   const options = ['F7', 'F9', 'F11']; // Example options for popup
 
+  useEffect(() => {
+    if (!focusedId) return;
+    console.log('focusedId', focusedId);
+    const chord = getChordById(song, focusedId);
+    console.log('ACTIVECHORD', chord);
+    if (chord) {
+      setActiveChord({
+        root: chord.root,
+        quality: chord.quality,
+        extensions: chord.extensions || [],
+      });
+    }
+  }, [focusedId, song]);
+  
   // Initialize PanResponder and attach it dynamically on long press
   // Using useMemo to ensure PanResponder is created once and does not recreate unnecessarily
   const panResponder = React.useMemo(
@@ -72,6 +100,7 @@ const CustomKeyboard = ({ onPress, onLongPressOption /*onPress*/ }: CustomKeyboa
 //     setShowPopup(false);
 //     setSelectedOption(null);
 //   };
+    const isM7Active = !!activeChord?.extensions?.includes("M7")
 
     return (
         <View style={styles.container}>
@@ -104,20 +133,45 @@ const CustomKeyboard = ({ onPress, onLongPressOption /*onPress*/ }: CustomKeyboa
                 onMainToggle={() => console.log("main")}
                 />
                 <VerticalDivider />
-                <ToggleGroup toggles={
-                    [
+                <ToggleGroup
+                    toggles={[
                         {
-                            label: "M"
+                            label: "M", // Represents Major 7
+                            isActive: isM7Active,
                         },
-                    ]
-                }
-                onToggle={(index) => console.log(index)}
-                mainToggle={
-                    {
+                    ]}
+                    onToggle={(index, isActive) => {
+                        const extension = "M7"
+                        if (!activeChord) return;
+
+                        const newExtensions = isActive
+                            ? [...(activeChord.extensions || []), extension]
+                            : (activeChord.extensions || []).filter(ext => ext !== extension);
+
+                        setActiveChord({
+                            ...activeChord,
+                            extensions: newExtensions
+                        });
+                        onChordChange(null, activeChord.root, activeChord.quality, newExtensions);
+                    }}
+                    mainToggle={{
                         label: "7",
-                    }
-                }
-                onMainToggle={() => console.log("main")}
+                        isActive: activeChord?.extensions?.includes("7"),
+                    }}
+                    onMainToggle={(isActive) => {
+                        const extension = "7"; // minor 7th
+                        if (!activeChord) return;
+
+                        const newExtensions = isActive
+                            ? [...(activeChord.extensions || []), extension]
+                            : (activeChord.extensions || []).filter(ext => ext !== extension);
+
+                        setActiveChord({
+                            ...activeChord,
+                            extensions: newExtensions
+                        });
+                        onChordChange(null, activeChord.root, activeChord.quality, newExtensions);
+                    }}
                 />
                 <VerticalDivider />
                 <ToggleGroup toggles={
@@ -178,25 +232,39 @@ const CustomKeyboard = ({ onPress, onLongPressOption /*onPress*/ }: CustomKeyboa
                 />
             </View>
             <View style={styles.row}>
-                {majors.map((major, index) => (
-                    <TouchableOpacity 
-                        onPress={(e) => onPress(e, major)}
-                        onLongPress={(e) => handleLongPress(e, major)} 
-                        key={index} style={styles.key}>
-                        <View style={styles.textWrapper}>
-                            <Text style={styles.text}>{major}</Text>
+                {majors.map((majorChord, index) => {
+                    const isActive = activeChord?.root === majorChord && activeChord?.quality === "Major"
+
+                    return (
+                    <TouchableOpacity
+                        onPress={(e) => onChordChange(e, majorChord, "Major", [])}
+                        onLongPress={(e) => handleLongPress(e, majorChord)}
+                        key={index}
+                        style={[styles.key]} // apply highlight
+                    >
+                        <View style={[styles.textWrapper, isActive && styles.activeKey]}>
+                        <Text style={styles.text}>{majorChord}</Text>
                         </View>
                     </TouchableOpacity>
-                ))}
+                    );
+                })}
             </View>
             <View style={styles.row}>
-                {minors.map((minor, index) => (
-                    <TouchableOpacity onPress={(e) => onPress(e, minor)} key={index} style={styles.key}>
-                        <View style={styles.textWrapper}>
-                            <Text style={styles.text}>{minor}</Text>
+                {minors.map((minorChord, index) => {
+                    const root = minorChord.replace("m", "");
+                    const isActive = activeChord?.root === root && activeChord?.quality === "Minor"
+                    return (
+                    <TouchableOpacity
+                        onPress={(e) => onChordChange(e, root, "Minor", [])}
+                        key={index}
+                        style={[styles.key]} // apply highlight
+                    >
+                        <View style={[styles.textWrapper, isActive && styles.activeKey]}>
+                            <Text style={[styles.text]}>{minorChord}</Text>
                         </View>
                     </TouchableOpacity>
-                ))}
+                    );
+                })}
             </View>
             {showPopup && (
         <Modal transparent animationType="none" visible={showPopup}>
@@ -245,6 +313,9 @@ const styles = StyleSheet.create({
         // marginVertical: 4,
         // marginHorizontal: 2,
     },
+    activeKey: {
+        backgroundColor: '#FF6F00',
+    },
     text: {
         textAlign: 'center',
         fontSize: 24,
@@ -258,26 +329,25 @@ const styles = StyleSheet.create({
         marginVertical: 4,
         marginHorizontal: 2,
     },
-
     popup: {
-    position: 'absolute',
-    backgroundColor: '#fff',
-    padding: 5,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-  },
-  popupOption: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    fontSize: 16,
-    color: '#333',
-  },
-  selectedOption: {
-    backgroundColor: '#ddd',
-  },
+        position: 'absolute',
+        backgroundColor: '#fff',
+        padding: 5,
+        borderRadius: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+    },
+    popupOption: {
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        fontSize: 16,
+        color: '#333',
+    },
+    selectedOption: {
+        backgroundColor: '#ddd',
+    },
     
 });
 

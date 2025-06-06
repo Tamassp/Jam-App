@@ -20,6 +20,7 @@ import ViewShot from 'react-native-view-shot'
 import { testDB } from '../../context/testDB'
 import { chordPathToId, findNextLeafChordWithPath } from '../../helpers/songEditor'
 import NewSongModal from '../NewSongModal/NewSongModal'
+import { useActiveChord } from '../../context/SongContext/ActiveChordContext'
 
 interface SongEditorProps {
     // song: ISong;
@@ -38,6 +39,7 @@ const SongEditor: React.FC<SongEditorProps> = ({
 
 
     const {song, barLength, ghostLine, setGhostLine, setBarLength, createNewSong, getAllSongs, setSong, saveSong, loadSong} = useSongContext();
+    const { setIsEditing, isEditing: isEditingChord } = useActiveChord();
 
     const [isChartListOpen, setIsChartListOpen] = useState<boolean>(true)
     const [isNewSongModalVisible, setNewSongModalVisible] = useState(false);
@@ -60,7 +62,8 @@ const SongEditor: React.FC<SongEditorProps> = ({
 
     const [newChord, setNewChord] = useState<string>('');
 
-    const { focusedId, handleFocus } = useFocus();
+    const { focusedId, handleFocus, secondaryFocusedId, handleSecondaryFocus } = useFocus();
+
 
     // const emptyLine = {bars: [{chords: [{name: '_'}]}]};
     const placeholderLine = testDB.songs[0].sections[0].lines[0];
@@ -77,8 +80,8 @@ const SongEditor: React.FC<SongEditorProps> = ({
     //     });
     // };
 
-    const handleKey = (e, key) => {
-        console.log("KEY", key);
+    const onChordChange = (e, root, quality, extensions ) => {
+        console.log("ROOT", root);
         console.log("FOCUSEDID", focusedId);
         if (!focusedId || typeof focusedId !== "string") return;
 
@@ -91,13 +94,29 @@ const SongEditor: React.FC<SongEditorProps> = ({
         const chordIndex = parseInt(idParts[3], 10);
         const subChordPath = idParts.slice(4).map(n => parseInt(n, 10));
 
-        console.log("KEY", key);
+        console.log("ROOT", root);
         console.log("INDEXES", sectionIndex, lineIndex, barIndex, chordIndex);
         console.log("SUBCHORDPATH", subChordPath);
         console.log("FOCUSEDID", focusedId);
 
         const lastLineIndex = song.sections[sectionIndex].lines.length - 1;
         console.log("LASTLINEINDEX", lastLineIndex);
+
+        const upsertChord = (chordsArray, path) => {
+            const currentIndex = path[0];
+            const remaining = path.slice(1);
+    
+            if (remaining.length === 0) {
+                chordsArray[currentIndex].root = root;
+                chordsArray[currentIndex].quality = quality;
+                chordsArray[currentIndex].extensions = extensions;
+            } else {
+                if (!chordsArray[currentIndex].subChords) {
+                    chordsArray[currentIndex].subChords = [];
+                }
+                upsertChord(chordsArray[currentIndex].subChords, remaining);
+            }
+        };
 
         if (lineIndex === lastLineIndex && ghostLine) {
             setSong(draft => {
@@ -109,20 +128,7 @@ const SongEditor: React.FC<SongEditorProps> = ({
                     .lines[lineIndex]
                     .bars[barIndex];
 
-                const insertChord = (chordsArray, path, newChordName) => {
-                    const currentIndex = path[0];
-                    const remaining = path.slice(1);
-                    if (remaining.length === 0) {
-                    chordsArray[currentIndex].name = newChordName;
-                    } else {
-                    if (!chordsArray[currentIndex].subChords) {
-                        chordsArray[currentIndex].subChords = [];
-                    }
-                    insertChord(chordsArray[currentIndex].subChords, remaining, newChordName);
-                }
-            };
-
-            insertChord(targetBar.chords, [chordIndex, ...subChordPath], key);
+            upsertChord(targetBar.chords, [chordIndex, ...subChordPath]);
             });
 
             // 3. Clear ghost line
@@ -131,8 +137,8 @@ const SongEditor: React.FC<SongEditorProps> = ({
             // 4. Focus continues automatically
             const nextChordWithPath = findNextLeafChordWithPath(song, focusedId);
             if (nextChordWithPath) {
-            const nextId = chordPathToId(nextChordWithPath.path);
-            handleFocus(nextId);
+                const nextId = chordPathToId(nextChordWithPath.path);
+                handleFocus(nextId);
             }
 
             return; // ⛔ Don't run the normal setSong() below again
@@ -143,27 +149,19 @@ const SongEditor: React.FC<SongEditorProps> = ({
                 .lines[lineIndex]
                 .bars[barIndex];
 
-            const insertChord = (chordsArray, path, newChordName) => {
-                const currentIndex = path[0];
-                const remaining = path.slice(1);
-
-                if (remaining.length === 0) {
-                    chordsArray[currentIndex].name = newChordName;
-                } else {
-                    if (!chordsArray[currentIndex].subChords) {
-                        chordsArray[currentIndex].subChords = [];
-                    }
-                    insertChord(chordsArray[currentIndex].subChords, remaining, newChordName);
-                }
-            };
-
-            insertChord(targetBar.chords, [chordIndex, ...subChordPath], key);
+            upsertChord(targetBar.chords, [chordIndex, ...subChordPath]);
         });
+
+        // ✅ Turn off editing once the user changes the root (first change)
+        setIsEditing(false);
 
         const nextChordWithPath = findNextLeafChordWithPath(song, focusedId); // pass current path string
         if (nextChordWithPath) {
             const nextId = chordPathToId(nextChordWithPath.path);
-            handleFocus(nextId); // update your focusedId state
+
+            
+            if(root && !isEditingChord) handleFocus(nextId);
+            else handleSecondaryFocus(nextId); 
         }
     };
     
@@ -265,8 +263,8 @@ const SongEditor: React.FC<SongEditorProps> = ({
     //     // }
     // }
 
-    const handleLongPress = (e, key) => {
-        console.log("LONG PRESS option", key);
+    const handleLongPress = (e, root) => {
+        console.log("LONG PRESS option", root);
     }
 
     useEffect(() => {
@@ -389,7 +387,7 @@ const SongEditor: React.FC<SongEditorProps> = ({
                 
                 
                 <View style={styles.keyboard}>
-                    <CustomKeyboard onPress={handleKey} onLongPressOption={handleLongPress} />
+                    <CustomKeyboard onChordChange={onChordChange} onLongPressOption={handleLongPress} />
                 </View>
                 <NewSongModal
                     visible={isNewSongModalVisible}

@@ -40,6 +40,8 @@ const Bar = React.memo( function Bar ({
 
     React.useLayoutEffect(() => {
         console.log('BarID', barId);
+        console.log("chordRoot", chords[0]?.root);
+        console.log("chordExtensions", chords[0]?.extensions);
     }, [barId])
         
     const beats = parseInt(timeSignature.split('/')[0], 10); // Extract beats from time signature
@@ -60,7 +62,8 @@ const Bar = React.memo( function Bar ({
                         <Chord
                         key={chordPath}
                         chordId={chordPath}
-                        name={chord.name}
+                        root={chord.root}
+                        extensions={chord.extensions}
                         subChords={chord.subChords}
                         beats={beats}
                         depth={0}

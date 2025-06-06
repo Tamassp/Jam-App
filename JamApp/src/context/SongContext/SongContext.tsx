@@ -6,31 +6,33 @@ import { buildChordTree } from '../../helpers/songEditor'
 import { JSX } from 'react'
 
 export const initialChord: IChord = {
-    name: '_',
+    root: '_',
 }
 
 export const initialBar: IBar = {
     timeSignature: "4/4",
     chords: [
     {
-        // name: "",
+        // root: "",
         subChords: [
             {
-                name: "",
+                root: "F",
+                extensions: ["b9", "#11"],
                 subChords: []
             },
             {
-                name: "",
+                root: "",
+                extensions: [],
                 subChords: []
             }
         ]
     }
     // {
-    //     name: "",
+    //     root: "",
     //     subChords: []
     // },
     // {
-    //     name: "G",
+    //     root: "G",
     //     subChords: []
     // }
     ]
@@ -40,7 +42,8 @@ const initialBar2: IBar = {
     timeSignature: "4/4",
     chords: [
     {
-        name: "",
+        root: "",
+        extensions: [],
         subChords: []
     }
     ]
@@ -54,17 +57,20 @@ const initialBar3: IBar = {
             {
                 subChords: [
                     {
-                        name: "",
+                        root: "",
+                        extensions: [],
                         subChords: []
                     },
                     {
-                        name: "",
+                        root: "",
+                        extensions: [],
                         subChords: []
                     }
                 ]
             },
             {
-                name: "",
+                root: "",
+                extensions: [],
                 subChords: []
             }
         ]

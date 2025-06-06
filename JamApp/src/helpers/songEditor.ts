@@ -140,14 +140,14 @@ export function countLeafChords(chord: IChord): number {
 
 export function buildChordTree(totalChords: number): IChord {
   if (totalChords <= 1) {
-    return { name: "", subChords: [] };
+    return { root: "", subChords: [] };
   }
 
   const half = Math.floor(totalChords / 2);
   const remainder = totalChords - half;
 
   return {
-    name: "",
+    root: "",
     subChords: [
       buildChordTree(half),
       buildChordTree(remainder),
@@ -157,11 +157,11 @@ export function buildChordTree(totalChords: number): IChord {
 
 export function generateGhostLine(barsPerLine: number, chordsPerBar: number): ILine {
   const createChordTree = (n: number): IChord => {
-    if (n <= 1) return { name: "", subChords: [] };
+    if (n <= 1) return { root: "", subChords: [] };
     const half = Math.floor(n / 2);
     const rest = n - half;
     return {
-      name: "",
+      root: "",
       subChords: [createChordTree(half), createChordTree(rest)],
     };
   };
@@ -180,7 +180,7 @@ export function generateGhostLine(barsPerLine: number, chordsPerBar: number): IL
 }
 
 export function containsChordName(chord: IChord): boolean {
-  if (chord.name && chord.name.trim() !== '') return true;
+  if (chord.root && chord.root.trim() !== '') return true;
   return chord.subChords?.some(containsChordName) ?? false;
 }
 
@@ -197,9 +197,29 @@ export function isLineFilled(line: ILine): boolean {
 
 function countFilledLeafChords(chord: IChord): number {
   if (!chord.subChords || chord.subChords.length === 0) {
-    return chord.name && chord.name.trim() !== '' ? 1 : 0;
+    return chord.root && chord.root.trim() !== '' ? 1 : 0;
   }
   return chord.subChords.reduce((acc, sub) => acc + countFilledLeafChords(sub), 0);
+}
+
+export function getChordById(song: ISong, chordId: string): IChord | null {
+  if (!chordId || !song) return null;
+
+  const idParts = chordId.split("-");
+  if (idParts.length < 4) return null;
+
+  const sectionIndex = parseInt(idParts[0], 10);
+  const lineIndex = parseInt(idParts[1], 10);
+  const barIndex = parseInt(idParts[2], 10);
+  const chordPath = idParts.slice(3).map(part => parseInt(part, 10)); // chordIndex + subChord path
+
+  const section = song.sections[sectionIndex];
+  const line = section?.lines[lineIndex];
+  const bar = line?.bars[barIndex];
+
+  if (!bar || !bar.chords) return null;
+
+  return getChordRef(bar.chords, chordPath);
 }
 
 //OLD SOLUTION

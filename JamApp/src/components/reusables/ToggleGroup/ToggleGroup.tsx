@@ -18,6 +18,9 @@ const ToggleGroup = ({
     onMainToggle,
     style,
 }: ToggleGroupProps): JSX.Element => {
+    React.useEffect(() => {
+        console.log("ToggleGroup received isActive:", toggles);
+    }, [toggles]);
     return (
         <View style={[styles.container, style]}>
             {toggles && toggles.map((toggle, index) => (

@@ -1,8 +1,11 @@
+export type TChordQuality = 'Major' | 'Minor' | 'Diminished' | 'Augmented';
+
 export interface IChord {
     // id: string;
-    name?: string;
+    root?: string; // e.g., "C", "G#", "Bb"
+    quality?: TChordQuality
+    extensions?: string[]; // e.g., "7", "#9", "b13", "sus4", "add9"
     perBass?: string;
-    type?: 'Major' | 'Minor' | 'Diminished' | 'Augmented';
     subChords?: IChord[];
 }
 

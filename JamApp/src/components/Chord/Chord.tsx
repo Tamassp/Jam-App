@@ -7,6 +7,7 @@ import { useSongContext } from '../../context/SongContext/SongContext'
 import OptionSelectorVertical from '../OptionSelectorVertical/OptionSelectorVertical'
 import { getChordRef, getParentChordRef } from '../../helpers/songEditor'
 import { JSX } from 'react'
+import { formatChordDisplay } from './chord.helpers'
 
 
 export interface ChordProps extends IChord {
@@ -20,19 +21,24 @@ export interface ChordProps extends IChord {
 
 const Chord = ({
     chordId,
-    name = 'C',
+    root = 'C',
+    quality = 'Major',
+    extensions = [],
     depth = 0,
     beats = 4,
     ghost = false,
     onActivate,
     // perBass,
-    // type = 'Major',
+    // quality = 'Major',
     subChords,
     ...props
 }: ChordProps): JSX.Element => {
-    const { focusedId, handleFocus, holdId, handleHold } = useFocus();
+    const { focusedId, handleFocus, secondaryFocusedId, holdId, handleHold } = useFocus();
     const { isPDFView, setIsPDFView } = usePDF();
     const { setSong } = useSongContext();
+
+    const isPrimaryFocus = focusedId === chordId;
+    const isSecondaryFocus = secondaryFocusedId === chordId;
 
     // const options = ['Split', 'Triplet']
     // if (subChords?.length > 0) {
@@ -95,8 +101,8 @@ const Chord = ({
             }
 
             targetChord.subChords = [
-                { name: "", subChords: [] },
-                { name: "", subChords: [] }
+                { root: "", subChords: [] },
+                { root: "", subChords: [] }
             ];
         });
     };
@@ -117,9 +123,9 @@ const Chord = ({
             if (!targetChord) return;
 
             targetChord.subChords = [
-            { name: "", subChords: [] },
-            { name: "", subChords: [] },
-            { name: "", subChords: [] }
+            { root: "", subChords: [] },
+            { root: "", subChords: [] },
+            { root: "", subChords: [] }
             ];
         });
     };
@@ -145,8 +151,8 @@ const Chord = ({
             console.log("Held SubChord: ", heldSubChord);
             // Replace the parent chord with the held subChord's data
             parentData.parent.subChords = undefined;
-            parentData.parent.name = heldSubChord.name ?? "";
-            parentData.parent.type = heldSubChord.type;
+            parentData.parent.root = heldSubChord.root ?? "";
+            parentData.parent.quality = heldSubChord.quality;
             parentData.parent.perBass = heldSubChord.perBass;
             // optionally: merge further down, discard other subChords, etc.
         });
@@ -171,7 +177,8 @@ const Chord = ({
                 <View key={childId} style={{ width: `${100 / siblingCount}%` } as ViewStyle}>
                     <Chord
                     chordId={childId}
-                    name={child.name}
+                    root={child.root}
+                    extensions={child.extensions}
                     subChords={child.subChords}
                     depth={depth + 1}
                     ghost={ghost}
@@ -189,7 +196,7 @@ const Chord = ({
             onPress={() => handleChordPress(chordId)}
             onLongPress={(e) => handleLongPress(e, depth)}
             >
-            {name === '' ? (
+            {root === '' ? (
                 !isPDFView && 
                     <View style={[styles.placeholder, focusedId === chordId && {backgroundColor: '#FF6F00'}]}/>
                 )
@@ -198,7 +205,30 @@ const Chord = ({
                     {holdId === chordId &&
                         <OptionSelectorVertical focusId={chordId} options={options} setOption={(option) => handleOption(option)} style={{position: 'absolute', left: 0, top: -48}}/>
                     }
-                    <Text style={[styles.chordText, focusedId === chordId && {color: 'red'}]}>{name}</Text>
+                    <Text style={[
+                        styles.chordText, 
+                        isPrimaryFocus && { color: 'red' },
+                        isSecondaryFocus && { color: 'red', opacity: 0.5 },
+                    ]}>
+                        {/* {formatChordDisplay({ root, quality })} */}
+
+                        {root}
+                        {quality === 'Minor' && 'm'}
+                        {quality === 'Diminished' && '°'}
+                        {quality === 'Augmented' && '⁺'}   
+                    </Text>
+                    {/* Superscript Extensions */}
+                    {extensions?.length > 0 && (
+                        <Text style={styles.superscript}>
+                            {extensions.map((ext, i) => (
+                            <Text key={i} >
+                                {ext
+                                .replace('b', '♭')
+                                .replace('#', '♯')}
+                            </Text>
+                            ))}
+                        </Text>
+                        )}             
                 </>
             }
         </TouchableOpacity>
@@ -210,7 +240,9 @@ const styles = StyleSheet.create({
         padding: 8,
         backgroundColor: '#f0f0f0',
         height: '100%',
-        width: '100%'
+        width: '100%',
+        flexDirection: 'row',
+        alignItems: 'flex-start',
         //Make line wrappable
         // paddingHorizontal: 32,
         // padding: 1
@@ -224,6 +256,11 @@ const styles = StyleSheet.create({
         backgroundColor: 'lightgrey',
         borderRadius: 4,
     },
+    superscript: {
+        fontSize: 16,
+        transform: [{ translateY: -6 }],
+        marginLeft: 2,
+      },
     chordGroup: {
         flexDirection: 'row',
         // justifyContent: 'space-between',

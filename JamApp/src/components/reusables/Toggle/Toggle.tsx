@@ -20,20 +20,21 @@ const Toggle = ({
     backgroundStyle
 }: ToggleProps): JSX.Element => {
 
-    const [active, setActive] = React.useState(isActive);
+    // const [active, setActive] = React.useState(isActive);
     const animatedValue = React.useRef(new Animated.Value(isActive ? 1 : 0)).current;
 
-    const handlePress = () => {
-        const newActiveState = !active;
-        setActive(newActiveState);
-        if (onToggle) onToggle(newActiveState);
-
+    // ✅ Animate on isActive change
+    React.useEffect(() => {
         Animated.timing(animatedValue, {
-            toValue: newActiveState ? 1 : 0,
-            duration: 200,
-            useNativeDriver: false,
+        toValue: isActive ? 1 : 0,
+        duration: 200,
+        useNativeDriver: false,
         }).start();
-    };
+    }, [isActive]);
+
+    const handlePress = () => {
+        if (onToggle) onToggle(!isActive); // parent will re-render with new state
+      };
 
     const backgroundColor = animatedValue.interpolate({
         inputRange: [0, 1],
@@ -44,7 +45,7 @@ const Toggle = ({
         <TouchableOpacity onPress={handlePress} style={[styles.toggleButton, style]}>
             <Animated.View style={[styles.buttonBackground, { backgroundColor }, backgroundStyle]}>
                 <Text style={[styles.buttonText, { fontSize }]}>
-                    {label || (active ? 'Active' : 'Inactive')}
+                    {label || (isActive  ? 'Active' : 'Inactive')}
                 </Text>
             </Animated.View>
         </TouchableOpacity>
