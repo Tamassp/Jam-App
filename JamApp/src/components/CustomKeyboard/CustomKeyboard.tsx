@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, GestureResponderEvent, Toucha
 import ToggleGroup from '../reusables/ToggleGroup/ToggleGroup'
 import VerticalDivider from '../reusables/VerticalDivider/VerticalDivider'
 import { JSX, useEffect, useState } from 'react'
-import { TChordQuality } from '../../interfaces/Interfaces'
+import { TChordQuality, TKeyboardInteractionSource } from '../../interfaces/Interfaces'
 import { useActiveChord } from '../../context/SongContext/ActiveChordContext'
 import { useSongContext } from '../../context/SongContext/SongContext'
 import { useFocus } from '../../context/FocusContext'
@@ -11,7 +11,7 @@ import { getChordById } from '../../helpers/songEditor'
 // import { SongContext } from '../../context/SongContext/SongContext';
 
 export interface CustomKeyboardProps /*extends TouchableOpacityProps*/ {
-    onChordChange: (e: GestureResponderEvent, root: string, quality: TChordQuality, extensions: string[]) => void;
+    onChordChange: (e: GestureResponderEvent, root: string, quality: TChordQuality, extensions: string[], interactionSource: TKeyboardInteractionSource) => void;
     onLongPressOption?: (option: string) => void;
 }
 
@@ -100,135 +100,146 @@ const CustomKeyboard = ({ onChordChange, onLongPressOption /*onPress*/ }: Custom
 //     setShowPopup(false);
 //     setSelectedOption(null);
 //   };
-    const isM7Active = !!activeChord?.extensions?.includes("M7")
+
+    const [activeToggles, setActiveToggles] = React.useState<Set<string>>(new Set());
+    const fifthToggles = ["b5", "#5"];
+    const ninthToggles = ["b9", "#9"];
+    const eleventhToggles = ["b11", "#11"];
+    const thirteenthToggles = ["b13", "#13"];
+
+    React.useEffect(() => {
+        if (activeChord?.extensions) {
+          setActiveToggles(new Set(activeChord.extensions));
+        } else {
+          setActiveToggles(new Set());
+        }
+      }, [activeChord]);
+
+    const toggleExtension = (ext: string, isActive: boolean) => {
+        if (!activeChord) return;
+      
+        const updatedExtensions = isActive
+          ? [...(activeChord.extensions || []), ext]
+          : (activeChord.extensions || []).filter(e => e !== ext);
+      
+        setActiveChord({
+          ...activeChord,
+          extensions: updatedExtensions,
+        });
+      
+        setActiveToggles(prev => {
+          const newSet = new Set(prev);
+          if (isActive) newSet.add(ext);
+          else newSet.delete(ext);
+          return newSet;
+        });
+      
+        onChordChange(null, activeChord.root, activeChord.quality, updatedExtensions, "extension");
+      };
 
     return (
         <View style={styles.container}>
             <View style={[styles.row, {marginBottom: 8}]}>
-                <ToggleGroup toggles={
-                    [
-                        {
-                            label: "b"
-                        },
-                        {
-                            label: "#",
-                        },
-                    ]
-                }
-                onToggle={(index) => console.log(index)}
-                mainToggle={
-                    {
+                <ToggleGroup 
+                    toggles={fifthToggles.map(label => ({
+                        label: label[0], // just "b" or "#"
+                        isActive: activeToggles.has(label)
+                    }))}
+                    onToggle={(index, isActive) => {
+                        const extension = fifthToggles[index]; // "b5" or "#5"
+                        toggleExtension(extension, isActive);
+                    }}
+                    mainToggle={{
                         label: "5",
-                    }
-                }
-                onMainToggle={() => console.log("main")}
+                        isActive: activeToggles.has("5")
+                    }}
+                    onMainToggle={(isActive) => {
+                        toggleExtension("5", isActive);
+                    }}
                 />
                 <VerticalDivider />              
                 <ToggleGroup 
-                mainToggle={
-                    {
-                        label: "6",
+                    mainToggle={
+                        {
+                            label: "6",
+                            isActive: activeToggles.has("6")
+                        }
                     }
-                }
-                onMainToggle={() => console.log("main")}
+                    onMainToggle={(isActive) => {
+                        toggleExtension("6", isActive);
+
+                    }}
                 />
                 <VerticalDivider />
                 <ToggleGroup
                     toggles={[
                         {
                             label: "M", // Represents Major 7
-                            isActive: isM7Active,
+                            isActive: activeToggles.has("M7"),
                         },
                     ]}
                     onToggle={(index, isActive) => {
-                        const extension = "M7"
-                        if (!activeChord) return;
-
-                        const newExtensions = isActive
-                            ? [...(activeChord.extensions || []), extension]
-                            : (activeChord.extensions || []).filter(ext => ext !== extension);
-
-                        setActiveChord({
-                            ...activeChord,
-                            extensions: newExtensions
-                        });
-                        onChordChange(null, activeChord.root, activeChord.quality, newExtensions);
+                        toggleExtension("M7", isActive);
                     }}
                     mainToggle={{
                         label: "7",
-                        isActive: activeChord?.extensions?.includes("7"),
+                        isActive: activeToggles.has("7"),
                     }}
                     onMainToggle={(isActive) => {
-                        const extension = "7"; // minor 7th
-                        if (!activeChord) return;
+                        toggleExtension("7", isActive);
 
-                        const newExtensions = isActive
-                            ? [...(activeChord.extensions || []), extension]
-                            : (activeChord.extensions || []).filter(ext => ext !== extension);
-
-                        setActiveChord({
-                            ...activeChord,
-                            extensions: newExtensions
-                        });
-                        onChordChange(null, activeChord.root, activeChord.quality, newExtensions);
                     }}
                 />
                 <VerticalDivider />
-                <ToggleGroup toggles={
-                    [
-                        {
-                            label: "b"
-                        },
-                        {
-                            label: "#",
-                        }
-                    ]
-                }
-                onToggle={(index) => console.log(index)}
-                mainToggle={
-                    {
+                <ToggleGroup 
+                    toggles={ninthToggles.map(label => ({
+                        label: label[0],
+                        isActive: activeToggles.has(label)
+                    }))}
+                    onToggle={(index, isActive) => {
+                        toggleExtension(ninthToggles[index], isActive);
+                    }}
+                    mainToggle={{
                         label: "9",
-                    }
-                }
-                onMainToggle={() => console.log("main")}
+                        isActive: activeToggles.has("9")
+                    }}
+                    onMainToggle={(isActive) => {
+                        toggleExtension("9", isActive);
+                    }}
                 />
                 <VerticalDivider />
-                <ToggleGroup toggles={
-                    [
-                        {
-                            label: "b"
-                        },
-                        {
-                            label: "#",
-                        }
-                    ]
-                }
-                onToggle={(index) => console.log(index)}
-                mainToggle={
-                    {
+                <ToggleGroup 
+                    toggles={eleventhToggles.map(label => ({
+                        label: label[0],
+                        isActive: activeToggles.has(label)
+                    }))}
+                    onToggle={(index, isActive) => {
+                        toggleExtension(eleventhToggles[index], isActive);
+                    }}
+                    mainToggle={{
                         label: "11",
-                    }
-                }
-                onMainToggle={() => console.log("main")}
+                        isActive: activeToggles.has("11")
+                    }}
+                    onMainToggle={(isActive) => {
+                        toggleExtension("11", isActive);
+                    }}
                 />
                 <VerticalDivider />
-                <ToggleGroup toggles={
-                    [
-                        {
-                            label: "b"
-                        },
-                        {
-                            label: "#",
-                        }
-                    ]
-                }
-                onToggle={(index) => console.log(index)}
-                mainToggle={
-                    {
+                <ToggleGroup 
+                    toggles={thirteenthToggles.map(label => ({
+                        label: label[0],
+                        isActive: activeToggles.has(label)
+                    }))}
+                    onToggle={(index, isActive) => {
+                        toggleExtension(thirteenthToggles[index], isActive);
+                    }}
+                    mainToggle={{
                         label: "13",
-                    }
-                }
-                onMainToggle={() => console.log("main")}
+                        isActive: activeToggles.has("13")
+                    }}
+                    onMainToggle={(isActive) => {
+                        toggleExtension("13", isActive);
+                    }}
                 />
             </View>
             <View style={styles.row}>
@@ -237,7 +248,7 @@ const CustomKeyboard = ({ onChordChange, onLongPressOption /*onPress*/ }: Custom
 
                     return (
                     <TouchableOpacity
-                        onPress={(e) => onChordChange(e, majorChord, "Major", [])}
+                        onPress={(e) => onChordChange(e, majorChord, "Major", [], "root")}
                         onLongPress={(e) => handleLongPress(e, majorChord)}
                         key={index}
                         style={[styles.key]} // apply highlight
@@ -255,7 +266,7 @@ const CustomKeyboard = ({ onChordChange, onLongPressOption /*onPress*/ }: Custom
                     const isActive = activeChord?.root === root && activeChord?.quality === "Minor"
                     return (
                     <TouchableOpacity
-                        onPress={(e) => onChordChange(e, root, "Minor", [])}
+                        onPress={(e) => onChordChange(e, root, "Minor", [], "root")}
                         key={index}
                         style={[styles.key]} // apply highlight
                     >

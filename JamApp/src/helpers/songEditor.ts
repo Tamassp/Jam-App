@@ -24,7 +24,7 @@ function collectLeafChordsWithPaths(
   }
 }
 
-function getAllLeafChordsWithPaths(song: ISong): TLeafChordWithPath[] {
+export function getAllLeafChordsWithPaths(song: ISong): TLeafChordWithPath[] {
   const result: TLeafChordWithPath[] = [];
 
   song.sections.forEach((section, sectionIndex) => {

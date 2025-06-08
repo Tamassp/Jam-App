@@ -1,4 +1,5 @@
 export type TChordQuality = 'Major' | 'Minor' | 'Diminished' | 'Augmented';
+export type TKeyboardInteractionSource = 'root' | 'extension'
 
 export interface IChord {
     // id: string;

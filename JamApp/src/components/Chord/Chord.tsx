@@ -8,6 +8,7 @@ import OptionSelectorVertical from '../OptionSelectorVertical/OptionSelectorVert
 import { getChordRef, getParentChordRef } from '../../helpers/songEditor'
 import { JSX } from 'react'
 import { formatChordDisplay } from './chord.helpers'
+import { useActiveChord } from '../../context/SongContext/ActiveChordContext'
 
 
 export interface ChordProps extends IChord {
@@ -158,11 +159,17 @@ const Chord = ({
         });
     };
 
+    const handleChordEdit = (chordId: string) => {
+        console.log('handleChordEdit', chordId);
+        handleFocus(chordId, true); // Focus the chord
+    }
+
     const handleChordPress = (chordId: string) => {
         if (ghost) {
             onActivate?.(chordId); // Pass back which ghost was tapped
         } else {
-            handleFocus(chordId);
+            handleChordEdit(chordId);
+            //handleFocus(chordId);
         }
     }
 
@@ -198,7 +205,11 @@ const Chord = ({
             >
             {root === '' ? (
                 !isPDFView && 
-                    <View style={[styles.placeholder, focusedId === chordId && {backgroundColor: '#FF6F00'}]}/>
+                    <View style={[
+                        styles.placeholder, 
+                        isPrimaryFocus && {backgroundColor: '#FF6F00'},
+                        isSecondaryFocus && {backgroundColor: '#FF6F00', opacity: 0.5},
+                    ]}/>
                 )
                 :
                 <>

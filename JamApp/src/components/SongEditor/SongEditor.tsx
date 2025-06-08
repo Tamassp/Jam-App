@@ -2,7 +2,7 @@ import React, { JSX, useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ViewStyle, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { SongSectionProps } from '../SongSection/SongSection'
 import Song, { SongProps } from '../Song/Song'
-import { ILine, ISong, ISongSection } from '../../interfaces/Interfaces'
+import { ILine, ISong, ISongSection, TKeyboardInteractionSource } from '../../interfaces/Interfaces'
 import CustomKeyboard from '../CustomKeyboard/CustomKeyboard'
 import { BarProps } from '../Bar/Bar'
 import { LineProps } from '../Line/Line'
@@ -18,7 +18,7 @@ import Divider from '../Divider'
 import { useExportAsPdf } from '../../hooks/useExportAsPdf'
 import ViewShot from 'react-native-view-shot'
 import { testDB } from '../../context/testDB'
-import { chordPathToId, findNextLeafChordWithPath } from '../../helpers/songEditor'
+import { chordPathToId, findNextLeafChordWithPath, getAllLeafChordsWithPaths } from '../../helpers/songEditor'
 import NewSongModal from '../NewSongModal/NewSongModal'
 import { useActiveChord } from '../../context/SongContext/ActiveChordContext'
 
@@ -80,7 +80,7 @@ const SongEditor: React.FC<SongEditorProps> = ({
     //     });
     // };
 
-    const onChordChange = (e, root, quality, extensions ) => {
+    const onChordChange = (e, root, quality, extensions, interactionSource: TKeyboardInteractionSource ) => {
         console.log("ROOT", root);
         console.log("FOCUSEDID", focusedId);
         if (!focusedId || typeof focusedId !== "string") return;
@@ -99,8 +99,19 @@ const SongEditor: React.FC<SongEditorProps> = ({
         console.log("SUBCHORDPATH", subChordPath);
         console.log("FOCUSEDID", focusedId);
 
-        const lastLineIndex = song.sections[sectionIndex].lines.length - 1;
-        console.log("LASTLINEINDEX", lastLineIndex);
+        const nextChordWithPath = findNextLeafChordWithPath(song, focusedId);
+        const nextChordId = nextChordWithPath ? chordPathToId(nextChordWithPath.path) : null;
+
+        // Decide which path to write to: current or next
+        const useNextChord = interactionSource === "root" && !isEditingChord;
+        const writePath = useNextChord ? nextChordWithPath?.path : {
+            sectionIndex,
+            lineIndex,
+            barIndex,
+            chordIndices: [chordIndex, ...subChordPath],
+        };
+
+        
 
         const upsertChord = (chordsArray, path) => {
             const currentIndex = path[0];
@@ -117,6 +128,9 @@ const SongEditor: React.FC<SongEditorProps> = ({
                 upsertChord(chordsArray[currentIndex].subChords, remaining);
             }
         };
+
+        const lastLineIndex = song.sections[sectionIndex].lines.length - 1;
+        console.log("LASTLINEINDEX", lastLineIndex);
 
         if (lineIndex === lastLineIndex && ghostLine) {
             setSong(draft => {
@@ -145,23 +159,34 @@ const SongEditor: React.FC<SongEditorProps> = ({
         }
 
         setSong((draft) => {
-            const targetBar = draft.sections[sectionIndex]
-                .lines[lineIndex]
-                .bars[barIndex];
+            const targetBar = draft.sections[writePath.sectionIndex]
+                .lines[writePath.lineIndex]
+                .bars[writePath.barIndex];
 
-            upsertChord(targetBar.chords, [chordIndex, ...subChordPath]);
+            upsertChord(targetBar.chords, writePath.chordIndices);
         });
 
         // ✅ Turn off editing once the user changes the root (first change)
         setIsEditing(false);
 
-        const nextChordWithPath = findNextLeafChordWithPath(song, focusedId); // pass current path string
         if (nextChordWithPath) {
-            const nextId = chordPathToId(nextChordWithPath.path);
+            const allChords = getAllLeafChordsWithPaths(song); // reuse your helper
+            const currentIndex = allChords.findIndex(c => chordPathToId(c.path) === focusedId);
 
+            const secondNext = allChords[currentIndex + 2]; // 🔁 second next chord (skip 1)
             
-            if(root && !isEditingChord) handleFocus(nextId);
-            else handleSecondaryFocus(nextId); 
+            const nextId = chordPathToId(nextChordWithPath.path);
+            const secondNextId = secondNext ? chordPathToId(secondNext.path) : null;
+
+            console.log("Interaction Source", interactionSource);
+            console.log("IsEditingChord", isEditingChord);
+            if(interactionSource == "root" && !isEditingChord) {
+                handleFocus(nextId, false); // If chord editing is active, focus the next chord
+                handleSecondaryFocus(secondNextId);
+            }
+            else if (interactionSource == "root" && isEditingChord) {
+                handleSecondaryFocus(nextId);
+            }
         }
     };
     

@@ -6,7 +6,7 @@ import { useSongContext } from './SongContext/SongContext'
 
 export interface IFocusContext {
   focusedId: string
-  handleFocus: (draft: string) => React.Dispatch<React.SetStateAction<string>>
+  handleFocus: (draft: string, isChordEditing?: boolean) => React.Dispatch<React.SetStateAction<string>>
   secondaryFocusedId?: string
   handleSecondaryFocus?: (draft: string) => React.Dispatch<React.SetStateAction<string>>
   holdId: string
@@ -15,7 +15,7 @@ export interface IFocusContext {
 
 const FocusContext = React.createContext({
   focusedId: "",
-  handleFocus: (id: string) => {},
+  handleFocus: (id: string, isChordEditing?: boolean ) => {},
   secondaryFocusedId: "",
   handleSecondaryFocus: (id: string) => {},
   holdId: "",
@@ -29,7 +29,7 @@ export const FocusProvider = ({ children }) => {
   const { setIsEditing } = useActiveChord()
   const { song } = useSongContext()
 
-  const handleFocus = (id: string) => {
+  const handleFocus = (id: string, isChordEditing: boolean) => {
     console.log('handleFocus', id);
     //It dissmisses even if the focus is on a text input
     if(Keyboard.isVisible() && !id.includes("TEXT")){
@@ -40,7 +40,11 @@ export const FocusProvider = ({ children }) => {
 
     // Set IsEditing mode in case of chord focus
     const chord = getChordById(song, id);
-    if (chord && chord.root) {
+    if (
+      //chord &&
+      //chord.root && 
+      isChordEditing
+    ) {
         setIsEditing(true); // ✅ We're editing this chord
     } else {
         setIsEditing(false); // ✅ New chord entry
