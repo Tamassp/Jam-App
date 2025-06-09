@@ -11,7 +11,7 @@ import EditIcon from '../../icons/EditIcon'
 import { useFocus } from '../../context/FocusContext'
 import TriangleIcon from '../../icons/TriangleIcon'
 import SectionTitle from '../SectionTitle/SectionTitle'
-import { generateGhostLine, isLineFilled } from '../../helpers/songEditor'
+import { generateGhostLine, isLineFilled, isValidFocusedId } from '../../helpers/songEditor'
 import { ILine } from '../../interfaces/Interfaces'
 import { JSX } from 'react'
 export interface SongSectionProps {
@@ -52,7 +52,7 @@ const SongSection = ({
 
     const handleTitleChange = (newTitle?: string) => {
         if(newTitle === title){
-            handleFocus("")
+            handleFocus("", "other")
             return
         }
 
@@ -72,16 +72,17 @@ const SongSection = ({
     }
 
     React.useEffect(() => {
-        handleFocus("")
+        handleFocus("", "other")
     },[title])
 
     const handleEditButtonPress = React.useCallback(() => {
-        if(focusedId == `EDIT_${songSectionId}`) {
-            handleFocus("")
+        if (!isValidFocusedId(focusedId)) return;
+        if(focusedId.id == `EDIT_${songSectionId}`) {
+            handleFocus("", "other")
         } else {
-            handleFocus(`EDIT_${songSectionId}`)
+            handleFocus(`EDIT_${songSectionId}`, "edit")
         }
-    }, [focusedId])
+    }, [focusedId?.id])
 
     const handleNewLine = React.useCallback((index: number) => {
         console.log("NEW LINE")
@@ -170,7 +171,7 @@ const SongSection = ({
                         lineLength={line.lineLength}
                         newChord={newChord}
                     />
-                    {focusedId === `EDIT_${songSectionId}` &&
+                    {focusedId && focusedId.id === `EDIT_${songSectionId}` &&
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                             <Pressable onPress={() => handleNewLine(index)} style={{backgroundColor: 'red', padding: 8, margin: 2}}>
                                 <Text>+</Text>

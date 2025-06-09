@@ -4,8 +4,13 @@ import { getChordById } from '../helpers/songEditor'
 import { useActiveChord } from './SongContext/ActiveChordContext'
 import { useSongContext } from './SongContext/SongContext'
 
+type TFocusType = 'chord' | 'text' | 'edit' | 'other'
+export interface IFocusedId {
+  id: string
+  type: TFocusType
+}
 export interface IFocusContext {
-  focusedId: string
+  focusedId: IFocusedId
   handleFocus: (draft: string, isChordEditing?: boolean) => React.Dispatch<React.SetStateAction<string>>
   secondaryFocusedId?: string
   handleSecondaryFocus?: (draft: string) => React.Dispatch<React.SetStateAction<string>>
@@ -14,8 +19,8 @@ export interface IFocusContext {
 }
 
 const FocusContext = React.createContext({
-  focusedId: "",
-  handleFocus: (id: string, isChordEditing?: boolean ) => {},
+  focusedId: { id: null, type: 'other' } as IFocusedId,
+  handleFocus: (id: string, type: TFocusType, isChordEditing?: boolean ) => {},
   secondaryFocusedId: "",
   handleSecondaryFocus: (id: string) => {},
   holdId: "",
@@ -23,19 +28,19 @@ const FocusContext = React.createContext({
 })
 
 export const FocusProvider = ({ children }) => {
-  const [focusedId, setFocusedId] = React.useState<string>(null);
+  const [focusedId, setFocusedId] = React.useState<IFocusedId>(null);
   const [secondaryFocusedId, setSecondaryFocusedId] = React.useState<string>(null);
   const [holdId, setHoldId] = React.useState<string>(null);
   const { setIsEditing } = useActiveChord()
   const { song } = useSongContext()
 
-  const handleFocus = (id: string, isChordEditing: boolean) => {
+  const handleFocus = (id: string, type: TFocusType, isChordEditing: boolean) => {
     console.log('handleFocus', id);
     //It dissmisses even if the focus is on a text input
     if(Keyboard.isVisible() && !id.includes("TEXT")){
       Keyboard.dismiss()
     }
-    setFocusedId(id);
+    setFocusedId({ id: id, type });
     setHoldId(null);
 
     // Set IsEditing mode in case of chord focus
@@ -66,7 +71,7 @@ export const FocusProvider = ({ children }) => {
     if(Keyboard.isVisible() && !id.includes("TEXT")){
       Keyboard.dismiss()
     }
-    setFocusedId(id);
+    setFocusedId({ id: id, type: 'chord' });
     setHoldId(id);
   };
 

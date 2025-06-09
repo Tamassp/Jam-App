@@ -7,7 +7,7 @@ import { TChordQuality, TKeyboardInteractionSource } from '../../interfaces/Inte
 import { useActiveChord } from '../../context/SongContext/ActiveChordContext'
 import { useSongContext } from '../../context/SongContext/SongContext'
 import { useFocus } from '../../context/FocusContext'
-import { getChordById } from '../../helpers/songEditor'
+import { getChordById, isValidFocusedId } from '../../helpers/songEditor'
 // import { SongContext } from '../../context/SongContext/SongContext';
 
 export interface CustomKeyboardProps /*extends TouchableOpacityProps*/ {
@@ -41,9 +41,16 @@ const CustomKeyboard = ({ onChordChange, onLongPressOption /*onPress*/ }: Custom
   const options = ['F7', 'F9', 'F11']; // Example options for popup
 
   useEffect(() => {
-    if (!focusedId) return;
-    console.log('focusedId', focusedId);
-    const chord = getChordById(song, focusedId);
+    if (!isValidFocusedId(focusedId)) return;
+    console.log('focusedId', focusedId.id);
+
+    // If focusedId is not a chord, reset customKeyboard
+    if (focusedId.type !== 'chord') {
+      setActiveChord(null);
+      return;
+    }
+    
+    const chord = getChordById(song, focusedId.id);
     console.log('ACTIVECHORD', chord);
     if (chord) {
       setActiveChord({
@@ -52,7 +59,7 @@ const CustomKeyboard = ({ onChordChange, onLongPressOption /*onPress*/ }: Custom
         extensions: chord.extensions || [],
       });
     }
-  }, [focusedId, song]);
+  }, [focusedId?.id, song]);
   
   // Initialize PanResponder and attach it dynamically on long press
   // Using useMemo to ensure PanResponder is created once and does not recreate unnecessarily
@@ -103,6 +110,8 @@ const CustomKeyboard = ({ onChordChange, onLongPressOption /*onPress*/ }: Custom
 
     const [activeToggles, setActiveToggles] = React.useState<Set<string>>(new Set());
     const fifthToggles = ["b5", "#5"];
+    const sixthToggles = [];
+    const seventhToggles = ["M7"];
     const ninthToggles = ["b9", "#9"];
     const eleventhToggles = ["b11", "#11"];
     const thirteenthToggles = ["b13", "#13"];
@@ -115,12 +124,32 @@ const CustomKeyboard = ({ onChordChange, onLongPressOption /*onPress*/ }: Custom
         }
       }, [activeChord]);
 
-    const toggleExtension = (ext: string, isActive: boolean) => {
+    type ExtensionGroup = '5' | '6' | '7' | '9' | '11' | '13'
+
+    const toggleExtension = (group: ExtensionGroup, ext: string, isActive: boolean) => {
         if (!activeChord) return;
-      
-        const updatedExtensions = isActive
-          ? [...(activeChord.extensions || []), ext]
-          : (activeChord.extensions || []).filter(e => e !== ext);
+        
+        // Remove all ext related extensions (i.e. 5, b5, #5)        
+        const extensionsSet = new Set<string>(
+            group === '5' ? fifthToggles :
+            group === '6' ? sixthToggles :
+            group === '7' ? seventhToggles :
+            group === '9' ? ninthToggles :
+            group === '11' ? eleventhToggles :
+            group === '13' ? thirteenthToggles :
+            []
+          );
+
+        const extensionsToRemove = extensionsSet.add(group)
+
+        const updatedExtensions = activeChord.extensions.filter(e => !extensionsToRemove.has(e));
+        
+        if (isActive) {
+          updatedExtensions.push(ext);
+        }
+        // const updatedExtensions = isActive
+        //   && [...(activeChord.extensions || []), ext]
+        //  : (activeChord.extensions || []).filter(e => !extensionsToRemove.has(e));
       
         setActiveChord({
           ...activeChord,
@@ -147,14 +176,14 @@ const CustomKeyboard = ({ onChordChange, onLongPressOption /*onPress*/ }: Custom
                     }))}
                     onToggle={(index, isActive) => {
                         const extension = fifthToggles[index]; // "b5" or "#5"
-                        toggleExtension(extension, isActive);
+                        toggleExtension('5', extension, isActive);
                     }}
                     mainToggle={{
                         label: "5",
-                        isActive: activeToggles.has("5")
+                        isActive: ["5", "b5", "#5"].some(ext => activeToggles.has(ext))
                     }}
                     onMainToggle={(isActive) => {
-                        toggleExtension("5", isActive);
+                        toggleExtension('5', "5", isActive);
                     }}
                 />
                 <VerticalDivider />              
@@ -166,8 +195,7 @@ const CustomKeyboard = ({ onChordChange, onLongPressOption /*onPress*/ }: Custom
                         }
                     }
                     onMainToggle={(isActive) => {
-                        toggleExtension("6", isActive);
-
+                        toggleExtension('6', "6", isActive);
                     }}
                 />
                 <VerticalDivider />
@@ -179,14 +207,14 @@ const CustomKeyboard = ({ onChordChange, onLongPressOption /*onPress*/ }: Custom
                         },
                     ]}
                     onToggle={(index, isActive) => {
-                        toggleExtension("M7", isActive);
+                        toggleExtension('7', "M7", isActive);
                     }}
                     mainToggle={{
                         label: "7",
-                        isActive: activeToggles.has("7"),
+                        isActive: ["M7", "7"].some(ext => activeToggles.has(ext)),
                     }}
                     onMainToggle={(isActive) => {
-                        toggleExtension("7", isActive);
+                        toggleExtension('7', "7", isActive);
 
                     }}
                 />
@@ -197,14 +225,14 @@ const CustomKeyboard = ({ onChordChange, onLongPressOption /*onPress*/ }: Custom
                         isActive: activeToggles.has(label)
                     }))}
                     onToggle={(index, isActive) => {
-                        toggleExtension(ninthToggles[index], isActive);
+                        toggleExtension('9', ninthToggles[index], isActive);
                     }}
                     mainToggle={{
                         label: "9",
-                        isActive: activeToggles.has("9")
+                        isActive: ["9", "b9", "#9"].some(ext => activeToggles.has(ext))
                     }}
                     onMainToggle={(isActive) => {
-                        toggleExtension("9", isActive);
+                        toggleExtension('9', "9", isActive);
                     }}
                 />
                 <VerticalDivider />
@@ -214,14 +242,14 @@ const CustomKeyboard = ({ onChordChange, onLongPressOption /*onPress*/ }: Custom
                         isActive: activeToggles.has(label)
                     }))}
                     onToggle={(index, isActive) => {
-                        toggleExtension(eleventhToggles[index], isActive);
+                        toggleExtension('11', eleventhToggles[index], isActive);
                     }}
                     mainToggle={{
                         label: "11",
-                        isActive: activeToggles.has("11")
+                        isActive: ["11", "b11", "#11"].some(ext => activeToggles.has(ext))
                     }}
                     onMainToggle={(isActive) => {
-                        toggleExtension("11", isActive);
+                        toggleExtension('11', "11", isActive);
                     }}
                 />
                 <VerticalDivider />
@@ -231,14 +259,14 @@ const CustomKeyboard = ({ onChordChange, onLongPressOption /*onPress*/ }: Custom
                         isActive: activeToggles.has(label)
                     }))}
                     onToggle={(index, isActive) => {
-                        toggleExtension(thirteenthToggles[index], isActive);
+                        toggleExtension('13', thirteenthToggles[index], isActive);
                     }}
                     mainToggle={{
                         label: "13",
-                        isActive: activeToggles.has("13")
+                        isActive: ["13", "b13", "#13"].some(ext => activeToggles.has(ext))
                     }}
                     onMainToggle={(isActive) => {
-                        toggleExtension("13", isActive);
+                        toggleExtension('13',"13", isActive);
                     }}
                 />
             </View>
@@ -262,11 +290,11 @@ const CustomKeyboard = ({ onChordChange, onLongPressOption /*onPress*/ }: Custom
             </View>
             <View style={styles.row}>
                 {minors.map((minorChord, index) => {
-                    const root = minorChord.replace("m", "");
-                    const isActive = activeChord?.root === root && activeChord?.quality === "Minor"
+                    // const root = minorChord.replace("m", "");
+                    const isActive = activeChord?.root === minorChord && activeChord?.quality === "Minor"
                     return (
                     <TouchableOpacity
-                        onPress={(e) => onChordChange(e, root, "Minor", [], "root")}
+                        onPress={(e) => onChordChange(e, minorChord, "Minor", [], "root")}
                         key={index}
                         style={[styles.key]} // apply highlight
                     >

@@ -28,7 +28,7 @@ const OptionSelector = ({
     const [color, setColor] = React.useState(backgroundColor || 'transparent')
     const handleOnFocus = React.useCallback(() => {
         console.log("OptionSelector Focus Id", focusId)
-        handleFocus(focusId)
+        handleFocus(focusId, "chord")
         //setColor('red')
     },[focusId])
 
@@ -43,10 +43,10 @@ const OptionSelector = ({
         // handleFocus("")
     },[])
 
-    
+    const isFocused = focusedId?.id === focusId;
 
     return (
-        <View style={[styles.wrapper, {backgroundColor: color, borderRadius: focusedId == focusId ? 4 : 0}]}>
+        <View style={[styles.wrapper, {backgroundColor: color, borderRadius: isFocused ? 4 : 0}]}>
             <TextInput 
                 onFocus={handleOnFocus}
                 onBlur={handleOnBlur}
@@ -58,7 +58,7 @@ const OptionSelector = ({
                     }
                 }>{text}
             </TextInput>
-            {!isPDFView && focusedId == focusId && (
+            {!isPDFView && isFocused && (
                 <View style={styles.optionsWrapper}>
                     {options.map((option, index) => (
                         <TouchableOpacity

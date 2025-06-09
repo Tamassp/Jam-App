@@ -26,13 +26,13 @@ const Button = ({
     )
 
     // Hide the SECTION_EDIT button, if the text editor is focused
-    if(focusedId && focusId === `EDIT_${focusedId.slice(-1)}`) return null
+    if(focusId && focusedId && focusedId.id && focusId === `EDIT_${focusedId.id.slice(-1)}`) return null
     return (
         <TouchableOpacity
             onPress={handleOnPress}
             style={[styles.wrapper, style]}
         >
-            {icon && <View style={{opacity: focusId === focusedId ? 0.5 : 1}}>{icon}</View>}
+            {icon && <View style={{opacity: focusedId && focusId === focusedId.id ? 0.5 : 1}}>{icon}</View>}
             {children &&
                 <Animated.View>
                     <Animated.Text>{children}</Animated.Text>

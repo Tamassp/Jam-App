@@ -28,7 +28,10 @@ const OptionSelectorVertical = ({
         //setIsOpen(false)
         // handleFocus("")
     },[])
-    if(isPDFView || focusedId != focusId) return null
+
+    const isFocused = focusedId?.id === focusId;
+
+    if(isPDFView || !isFocused) return null
     return (
         <View style={[styles.wrapper, style]}>
             {options && options.map((option, index) => (

@@ -37,8 +37,8 @@ const Chord = ({
     const { focusedId, handleFocus, secondaryFocusedId, holdId, handleHold } = useFocus();
     const { isPDFView, setIsPDFView } = usePDF();
     const { setSong } = useSongContext();
-
-    const isPrimaryFocus = focusedId === chordId;
+    
+    const isPrimaryFocus = focusedId?.id === chordId;
     const isSecondaryFocus = secondaryFocusedId === chordId;
 
     // const options = ['Split', 'Triplet']
@@ -161,7 +161,7 @@ const Chord = ({
 
     const handleChordEdit = (chordId: string) => {
         console.log('handleChordEdit', chordId);
-        handleFocus(chordId, true); // Focus the chord
+        handleFocus(chordId, "chord", true); // Focus the chord
     }
 
     const handleChordPress = (chordId: string) => {

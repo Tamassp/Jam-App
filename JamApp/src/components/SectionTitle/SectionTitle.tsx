@@ -28,7 +28,7 @@ const SectionTitle: React.FC<SectionTitleProps> = ({
     const [color, setColor] = React.useState(backgroundColor || 'transparent')
     const handleOnFocus = React.useCallback(() => {
         console.log("OptionSelector Focus Id", focusId)
-        handleFocus(focusId)
+        handleFocus(focusId, "edit")
         //setColor('red')
     },[focusId])
     
@@ -45,7 +45,7 @@ const SectionTitle: React.FC<SectionTitleProps> = ({
 
 
     return (
-        <View style={[styles.wrapper, {backgroundColor: color, borderRadius: focusedId == focusId ? 4 : 4}]}>
+        <View style={[styles.wrapper, {backgroundColor: color, borderRadius: focusedId && focusedId.id == focusId ? 4 : 4}]}>
             <TextInput 
                 onFocus={handleOnFocus}
                 onBlur={handleOnBlur}
@@ -58,7 +58,7 @@ const SectionTitle: React.FC<SectionTitleProps> = ({
                     }
                 }>{text}
             </TextInput>
-            {!isPDFView && focusedId == focusId && (
+            {!isPDFView && focusedId && focusedId.id == focusId && (
                 <View style={styles.optionsWrapper}>
                     {options.map((option, index) => (
                         <TouchableOpacity

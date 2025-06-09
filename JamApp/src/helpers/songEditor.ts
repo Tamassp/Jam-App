@@ -1,3 +1,4 @@
+import { IFocusedId } from "../context/FocusContext"
 import { IChord, TChordPath, ISong, TLeafChordWithPath, ILine, SplitRow, IBar } from "../interfaces/Interfaces"
 
 function isLeafChord(chord: IChord): boolean {
@@ -221,6 +222,16 @@ export function getChordById(song: ISong, chordId: string): IChord | null {
 
   return getChordRef(bar.chords, chordPath);
 }
+
+export const isValidFocusedId = (idObj: any): idObj is IFocusedId => {
+  return (
+      idObj !== null &&
+      typeof idObj === 'object' &&
+      typeof idObj.id === 'string' &&
+      typeof idObj.type === 'string' &&
+      ['chord', 'text', 'edit', 'other'].includes(idObj.type)
+  );
+};
 
 //OLD SOLUTION
 // export function getNextItem(song, path) {

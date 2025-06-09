@@ -33,7 +33,7 @@ const Song = forwardRef<View, SongProps>(({
 
     const {handleFocus} = useFocus()
     const handleOnTitleClick = React.useCallback(() => {
-        handleFocus("TEXT_TITLE")
+        handleFocus("TEXT_TITLE", "text")
     },[])
     
     const onTitleChange = React.useCallback((newTitle: string) => {
@@ -43,7 +43,7 @@ const Song = forwardRef<View, SongProps>(({
     },[])
 
     const handleOnArtistClick = React.useCallback(() => {
-        handleFocus("TEXT_ARTIST")
+        handleFocus("TEXT_ARTIST", "text")
     },[])
 
     const onArtistChange = React.useCallback((newArtist: string) => {

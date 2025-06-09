@@ -43,7 +43,7 @@ const Line = ({
 
         setGhostLine(null);
         if (initialChordId) {
-            handleFocus(initialChordId); // focus where the user tapped
+            handleFocus(initialChordId, "chord"); // focus where the user tapped
         }
     };
     return (

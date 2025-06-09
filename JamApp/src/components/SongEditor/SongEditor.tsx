@@ -38,7 +38,7 @@ const SongEditor: React.FC<SongEditorProps> = ({
     }
 
 
-    const {song, barLength, ghostLine, setGhostLine, setBarLength, createNewSong, getAllSongs, setSong, saveSong, loadSong} = useSongContext();
+    const {song, ghostLine, setGhostLine, createNewSong, getAllSongs, setSong, saveSong, loadSong} = useSongContext();
     const { setIsEditing, isEditing: isEditingChord } = useActiveChord();
 
     const [isChartListOpen, setIsChartListOpen] = useState<boolean>(true)
@@ -82,10 +82,9 @@ const SongEditor: React.FC<SongEditorProps> = ({
 
     const onChordChange = (e, root, quality, extensions, interactionSource: TKeyboardInteractionSource ) => {
         console.log("ROOT", root);
-        console.log("FOCUSEDID", focusedId);
-        if (!focusedId || typeof focusedId !== "string") return;
-
-        const idParts = focusedId.split("-"); // ['00', '01', '02', '03', ...]
+        if (!focusedId || !focusedId.id || typeof focusedId.id !== "string") return;
+        console.log("FOCUSEDID", focusedId.id);
+        const idParts = focusedId.id.split("-"); // ['00', '01', '02', '03', ...]
         if (idParts.length < 4) return;
 
         const sectionIndex = parseInt(idParts[0], 10);
@@ -97,9 +96,9 @@ const SongEditor: React.FC<SongEditorProps> = ({
         console.log("ROOT", root);
         console.log("INDEXES", sectionIndex, lineIndex, barIndex, chordIndex);
         console.log("SUBCHORDPATH", subChordPath);
-        console.log("FOCUSEDID", focusedId);
+        console.log("FOCUSEDID", focusedId.id);
 
-        const nextChordWithPath = findNextLeafChordWithPath(song, focusedId);
+        const nextChordWithPath = findNextLeafChordWithPath(song, focusedId.id);
         const nextChordId = nextChordWithPath ? chordPathToId(nextChordWithPath.path) : null;
 
         // Decide which path to write to: current or next
@@ -119,7 +118,7 @@ const SongEditor: React.FC<SongEditorProps> = ({
     
             if (remaining.length === 0) {
                 chordsArray[currentIndex].root = root;
-                chordsArray[currentIndex].quality = quality;
+                // chordsArray[currentIndex].quality = quality;
                 chordsArray[currentIndex].extensions = extensions;
             } else {
                 if (!chordsArray[currentIndex].subChords) {
@@ -149,10 +148,10 @@ const SongEditor: React.FC<SongEditorProps> = ({
             setGhostLine(null);
 
             // 4. Focus continues automatically
-            const nextChordWithPath = findNextLeafChordWithPath(song, focusedId);
+            const nextChordWithPath = findNextLeafChordWithPath(song, focusedId.id);
             if (nextChordWithPath) {
                 const nextId = chordPathToId(nextChordWithPath.path);
-                handleFocus(nextId);
+                handleFocus(nextId, 'chord');
             }
 
             return; // ⛔ Don't run the normal setSong() below again
@@ -171,7 +170,7 @@ const SongEditor: React.FC<SongEditorProps> = ({
 
         if (nextChordWithPath) {
             const allChords = getAllLeafChordsWithPaths(song); // reuse your helper
-            const currentIndex = allChords.findIndex(c => chordPathToId(c.path) === focusedId);
+            const currentIndex = allChords.findIndex(c => chordPathToId(c.path) === focusedId.id);
 
             const secondNext = allChords[currentIndex + 2]; // 🔁 second next chord (skip 1)
             
@@ -181,7 +180,7 @@ const SongEditor: React.FC<SongEditorProps> = ({
             console.log("Interaction Source", interactionSource);
             console.log("IsEditingChord", isEditingChord);
             if(interactionSource == "root" && !isEditingChord) {
-                handleFocus(nextId, false); // If chord editing is active, focus the next chord
+                handleFocus(nextId, 'chord', false); // If chord editing is active, focus the next chord
                 handleSecondaryFocus(secondNextId);
             }
             else if (interactionSource == "root" && isEditingChord) {
@@ -294,15 +293,15 @@ const SongEditor: React.FC<SongEditorProps> = ({
 
     useEffect(() => {
         // const tempBarindex = Array.from(focusedId)[0];
-        if(focusedId === null || focusedId === undefined) return;
-        setSectionIndex(focusedId.charAt(0))
-        setLineIndex(focusedId.charAt(1))
-        setBarIndex(focusedId.charAt(2))
-        setChordIndex(focusedId.substring(3)); // Extract all digits from the 4th onwards
+        if(!focusedId || focusedId.id === null || focusedId.id === undefined) return;
+        setSectionIndex(focusedId.id.charAt(0))
+        setLineIndex(focusedId.id.charAt(1))
+        setBarIndex(focusedId.id.charAt(2))
+        setChordIndex(focusedId.id.substring(3)); // Extract all digits from the 4th onwards
         
         
         // console.log("BARINDEX", barIndex);
-    }, [focusedId])
+    }, [focusedId?.id])
 
     //test indexes
     useEffect(() => {
@@ -363,7 +362,7 @@ const SongEditor: React.FC<SongEditorProps> = ({
             newFocusedId += "-00"; // ➡️ dive into first subchord if exists
         }
 
-        handleFocus(newFocusedId);
+        handleFocus(newFocusedId, 'chord');
         setIsCreatingNewSong(false);
     }
     }, [song]);
@@ -385,7 +384,7 @@ const SongEditor: React.FC<SongEditorProps> = ({
 
     const handleOutsidePress = () => {
         console.log("OutsidePres");
-        handleFocus("")
+        handleFocus("", "other")
         //dismiss should be moved to focuscontext
         // Keyboard.dismiss()
     }
