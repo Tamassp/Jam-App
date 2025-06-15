@@ -49,7 +49,7 @@ const Bar = React.memo( function Bar ({
 
     return (
         <View style={[styles.container]} {...props}>
-            <View style={styles.chordContainer}>
+            <View style={[styles.chordContainer, ghost && { borderColor: 'rgba(0, 0, 0, 0.3)' }]}>
                 {chords.map((chord, chordIndex) => {
                     const chordPath = [
                         sectionIndex,
@@ -82,8 +82,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flex: 1,
         // justifyContent: 'space-around',
-        borderRightWidth: 1,
-        padding: 5,
+        // borderWidth: 1,
+        // borderRightWidth: 1,
+        // borderColor: '#ccc',
+        // padding: 5,
         //height: 32,
         // backgroundColor: '#bada55'
     },
@@ -91,9 +93,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         width: '100%',
-        height: 48
+        height: 48,
+        // backgroundColor: '#f0f0f0',
+        borderLeftWidth: 1,
     },
-    
+
 });
 
 export default Bar;

@@ -199,7 +199,7 @@ const Chord = ({
     
     return (
         <TouchableOpacity
-            style={[styles.container, { opacity: ghost ? 0.7 : 1 } as ViewStyle]} // Full width since it's already inside a wrapper
+            style={[styles.container, { opacity: ghost ? 0.5 : 1 } as ViewStyle]} // Full width since it's already inside a wrapper
             onPress={() => handleChordPress(chordId)}
             onLongPress={(e) => handleLongPress(e, depth)}
             >
@@ -218,8 +218,8 @@ const Chord = ({
                     }
                     <Text style={[
                         styles.chordText, 
-                        isPrimaryFocus && { color: 'red' },
-                        isSecondaryFocus && { color: 'red', opacity: 0.5 },
+                        isPrimaryFocus && { color: '#FF5F00' },
+                        isSecondaryFocus && { color: '#FF6F00', opacity: 0.5 },
                     ]}>
                         {/* {formatChordDisplay({ root, quality })} */}
 
@@ -230,7 +230,7 @@ const Chord = ({
                     </Text>
                     {/* Superscript Extensions */}
                     {extensions?.length > 0 && (
-                        <Text style={styles.superscript}>
+                        <Text style={[styles.superscript, {color: isPrimaryFocus ? '#FF5F00' : ''}]}>
                             {extensions.map((ext, i) => (
                             <Text key={i} >
                                 {ext
@@ -249,7 +249,7 @@ const Chord = ({
 const styles = StyleSheet.create({
     container: {
         padding: 8,
-        backgroundColor: '#f0f0f0',
+        // backgroundColor: '#f0f0f0',
         height: '100%',
         width: '100%',
         flexDirection: 'row',

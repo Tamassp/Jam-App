@@ -13,19 +13,21 @@ export const initialBar: IBar = {
     timeSignature: "4/4",
     chords: [
     {
-        // root: "",
-        subChords: [
-            {
-                root: "F",
-                extensions: ["b9", "#11"],
-                subChords: []
-            },
-            {
-                root: "",
-                extensions: [],
-                subChords: []
-            }
-        ]
+        root: "",
+        extensions: [],
+        subChords: []
+        // subChords: [
+        //     {
+        //         root: "",
+        //         extensions: [],
+        //         subChords: []
+        //     },
+        //     {
+        //         root: "",
+        //         extensions: [],
+        //         subChords: []
+        //     }
+        // ]
     }
     // {
     //     root: "",
@@ -82,8 +84,9 @@ export const initialLine: ILine = {
     lineColor: '#aaaaaa',
     bars: [
         initialBar,
-        initialBar2,
-        initialBar3
+        initialBar,
+        initialBar,
+        initialBar,
         // initialBar,
     ]
 }

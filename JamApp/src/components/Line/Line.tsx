@@ -49,7 +49,7 @@ const Line = ({
     return (
         <View style={styles.lineContainer}>
             {rows.map((row, rowIndex) => (
-                <View key={rowIndex} style={styles.rowContainer}>
+                <View key={rowIndex} style={[styles.rowContainer, ghost && { borderColor: 'rgba(0, 0, 0, 0.3)' }]} onTouchEnd={handleUserInteraction}>
                     {row.bars.map((bar, barIndex) => {
                         const chordCountInBar = bar.chords.reduce(
                             (acc, chord) => acc + countLeafChords(chord),
@@ -94,8 +94,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 8,                    // Optional: small space between bars
         width: '100%',             // Row stretches full width
-        borderLeftWidth: 2,
-        backgroundColor: '#bada55',
+        //borderLeftWidth: 2,
+        borderRightWidth: 1,
+        // backgroundColor: '#bada55',
     },
     bar: {
         // backgroundColor: '#f0f0f0',
