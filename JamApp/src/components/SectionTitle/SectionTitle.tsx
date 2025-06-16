@@ -1,14 +1,15 @@
 import * as React from 'react';
 import { View, Text, StyleSheet, ViewStyle, TouchableOpacity, Animated, TouchableOpacityProps, GestureResponderEvent, TextInput, Keyboard } from 'react-native';
 import  Button, {ButtonProps} from '../reusables/Button/Button'
-import { useFocus } from '../../context/FocusContext'
+import { IFocusedId, useFocus } from '../../context/FocusContext'
 import { usePDF } from '../../context/PDFContext'
 import { JSX } from 'react'
+import { isValidFocusedId } from '../../helpers/songEditor'
 
 // Define props interface
 interface SectionTitleProps {
     backgroundColor?: string
-    focusId: string
+    focusId: IFocusedId
     options: string[]
     text: string
     setOption: React.Dispatch<React.SetStateAction<string>>
@@ -28,7 +29,7 @@ const SectionTitle: React.FC<SectionTitleProps> = ({
     const [color, setColor] = React.useState(backgroundColor || 'transparent')
     const handleOnFocus = React.useCallback(() => {
         console.log("OptionSelector Focus Id", focusId)
-        handleFocus(focusId, "edit")
+        handleFocus(focusId.id, "edit")
         //setColor('red')
     },[focusId])
     
@@ -45,7 +46,7 @@ const SectionTitle: React.FC<SectionTitleProps> = ({
 
 
     return (
-        <View style={[styles.wrapper, {backgroundColor: color, borderRadius: focusedId && focusedId.id == focusId ? 4 : 4}]}>
+        <View style={[styles.wrapper, {backgroundColor: color, borderRadius: focusedId && focusedId.id == focusId.id ? 4 : 4}]}>
             <TextInput 
                 onFocus={handleOnFocus}
                 onBlur={handleOnBlur}
@@ -58,7 +59,7 @@ const SectionTitle: React.FC<SectionTitleProps> = ({
                     }
                 }>{text}
             </TextInput>
-            {!isPDFView && focusedId && focusedId.id == focusId && (
+            {!isPDFView && isValidFocusedId(focusedId) && focusedId.id == focusId.id && (
                 <View style={styles.optionsWrapper}>
                     {options.map((option, index) => (
                         <TouchableOpacity

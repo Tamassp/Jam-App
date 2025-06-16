@@ -86,6 +86,7 @@ const styles = StyleSheet.create({
         gap: 8,                   // Optional: small space between rows
         marginBottom: 16,          // Space after a line ends
         width: '100%',         // Line stretches full width
+        backgroundColor: 'transparent', // Transparent background for lines
     },
     rowContainer: {
         flexDirection: 'row',      // Bars in a row should be horizontal

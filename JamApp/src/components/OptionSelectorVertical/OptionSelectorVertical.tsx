@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { View, Text, StyleSheet, ViewStyle, TouchableOpacity, Animated, TouchableOpacityProps, GestureResponderEvent, TextInput } from 'react-native';
 import  Button, {ButtonProps} from '../reusables/Button/Button';
-import { useFocus } from '../../context/FocusContext'
+import { IFocusedId, useFocus } from '../../context/FocusContext'
 import { usePDF } from '../../context/PDFContext'
 import { JSX } from 'react'
 
 export interface OptionSelectorVerticalProps extends ButtonProps {
     //open: boolean
-    focusId: string
+    focusId: IFocusedId
     options: string[]
     //text: string
     setOption: React.Dispatch<React.SetStateAction<string>>
@@ -29,7 +29,7 @@ const OptionSelectorVertical = ({
         // handleFocus("")
     },[])
 
-    const isFocused = focusedId?.id === focusId;
+    const isFocused = focusedId?.id === focusId.id && focusedId.type === focusId.type;
 
     if(isPDFView || !isFocused) return null
     return (

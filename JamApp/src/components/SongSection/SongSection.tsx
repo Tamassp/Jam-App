@@ -39,9 +39,10 @@ const SongSection = ({
     // isEditing = true,
     ...props }: SongSectionProps): JSX.Element => {
     const { focusedId, handleFocus } = useFocus()
-
     const { song, initialLine, barsPerLine, chordsPerBar, ghostLine, setGhostLine, setSong } = useSongContext()
     const lastLine = lines[lines.length - 1];
+
+    const isFocused = focusedId?.id === `${songSectionId}` && focusedId?.type === "edit";
 
     // const shouldShowGhostLine = isLineFilled(lastLine);
     // const ghostLine = shouldShowGhostLine ? generateGhostLine(barLength, chordsPerBar) : null;
@@ -77,10 +78,10 @@ const SongSection = ({
 
     const handleEditButtonPress = React.useCallback(() => {
         if (!isValidFocusedId(focusedId)) return;
-        if(focusedId.id == `EDIT_${songSectionId}`) {
+        if(focusedId.id == `${songSectionId}` && focusedId.type === "edit") {
             handleFocus("", "other")
         } else {
-            handleFocus(`EDIT_${songSectionId}`, "edit")
+            handleFocus(`${songSectionId}`, "edit")
         }
     }, [focusedId?.id])
 
@@ -139,22 +140,22 @@ const SongSection = ({
     }, [song]);
 
     return (
-        <View style={[styles.container, {backgroundColor}]}>
+        <View style={[styles.container, {backgroundColor: isFocused ? 'rgba(205,152,152,0.2)' : backgroundColor}]} {...props}>
             <View style={styles.titleWrapper}>
                 <Pressable style={styles.title} >
                     {/* <TextInput>{title}</TextInput> */}
                     {/* <Text>{title}</Text> */}
                     {/* <OptionSelector focusId={`TEXT_${songSectionId}`} setOption={handleTitleChange} text={title} options={['Verse', 'Chorus', 'Bridge']} backgroundColor='#ddaaaa' /> */}
-                    <SectionTitle focusId={`TEXT_${songSectionId}`} setOption={handleTitleChange} text={title} options={['Verse', 'Chorus', 'Bridge']} backgroundColor='#ddaaaa' />
+                    <SectionTitle focusId={{id: `${songSectionId}`, type: "text"}} setOption={handleTitleChange} text={title} options={['Verse', 'Chorus', 'Bridge']} backgroundColor='#ddaaaa' />
                 </Pressable>
                 <Button 
                     onPress={handleEditButtonPress} 
                     icon={<EditIcon width={20} height={20} />}
                     style={{borderWidth: 0}}
-                    focusId={`EDIT_${songSectionId}`}
+                    focusId={{id: `${songSectionId}`, type: "edit"}}
                 />
                 <View>
-                    <OptionSelectorVertical focusId={`EDIT_${songSectionId}`} style={styles.sectionOptions} options={["Add Repeat", "Do something", "Delete"]} text={'icon'} setOption={function (value: React.SetStateAction<string>): void {
+                    <OptionSelectorVertical focusId={{id: `${songSectionId}`, type: "other"}} style={styles.sectionOptions} options={["Add Repeat", "Do something", "Delete"]} text={'icon'} setOption={function (value: React.SetStateAction<string>): void {
                         throw new Error('Function not implemented.')
                     } } />
                 </View>
@@ -162,7 +163,7 @@ const SongSection = ({
             
 
             {lines.length > 0 && lines.map((line, index) => (
-                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                <View style={styles.lineContainer} key={`${sectionIndex}-${index}`}>
                      <Line
                         key={`${sectionIndex}-${index}`}
                         sectionIndex={sectionIndex}
@@ -171,7 +172,7 @@ const SongSection = ({
                         lineLength={line.lineLength}
                         newChord={newChord}
                     />
-                    {focusedId && focusedId.id === `EDIT_${songSectionId}` &&
+                    {focusedId && focusedId.id === `${songSectionId}` && focusedId.type === "edit" &&
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                             <Pressable onPress={() => handleNewLine(index)} style={{backgroundColor: 'red', padding: 8, margin: 2}}>
                                 <Text>+</Text>
@@ -203,12 +204,27 @@ const SongSection = ({
 
 
 const styles = StyleSheet.create({
+    // container: {
+    //     flexDirection: 'column',
+    //     justifyContent: 'space-between',
+    //     // borderLeftWidth: 2,
+    //     marginTop: 20,
+    //     width: 672,
+
+    // },
     container: {
         flexDirection: 'column',
         justifyContent: 'space-between',
-        // borderLeftWidth: 2,
-        marginTop: 20,
-        width: 672
+        padding: 8,
+        width: '100%',
+        borderRadius: 4
+    },
+    lineContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        // backgroundColor: 'lightgray',
+        marginLeft: 24,
+        marginRight: 16
     },
     bar: {
         // backgroundColor: '#f0f0f0',
@@ -240,17 +256,21 @@ const styles = StyleSheet.create({
         // backgroundColor: 'lightgreen',
         // borderRadius: 2,
     },
+    // titleWrapper: {
+    //     position: 'absolute',
+    //     zIndex: 1,
+    //     top: -32,
+    //     left: -20,
+    //     flexDirection: 'row',
+    //     justifyContent: 'space-between',
+    //     alignItems: 'center',
+    // },
     titleWrapper: {
-        position: 'absolute',
-        zIndex: 1,
-        top: -32,
-        left: -20,
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        // padding: 5,
-        
-        // backgroundColor: '#f0f0f0',
+        alignItems: 'flex-start',
+        // marginTop: 16,
+        marginLeft: 8,
+        marginBottom: -4,
     },
     
 });

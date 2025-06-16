@@ -81,6 +81,7 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         flex: 1,
+        backgroundColor: 'transparent',
         // justifyContent: 'space-around',
         // borderWidth: 1,
         // borderRightWidth: 1,
