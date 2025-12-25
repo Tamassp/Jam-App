@@ -17,7 +17,7 @@ export interface IBar {
 }
 
 export interface ILine {
-    //id: string;
+    id: string; // for animations
     lineColor?: string;
     number?: number;
     lineLength?: number;

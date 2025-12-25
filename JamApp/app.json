@@ -21,7 +21,8 @@
         {
           "initialOrientation": "landscape"
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "assetBundlePatterns": [
       "**/*"

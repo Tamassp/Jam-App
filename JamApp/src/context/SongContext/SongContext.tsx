@@ -157,7 +157,7 @@ export const SongProvider = ({ children }: { children: React.ReactNode }): JSX.E
     const [allSongKeys, setAllSongKeys] = useImmer<string[]>([])
     const [song, setSong] = useImmer<ISong>(initialSong);
     const [barsPerLine, setBarsPerLine] = React.useState<number>(4)
-    const [chordsPerBar, setChordsPerBar] = React.useState<number>(4)
+    const [chordsPerBar, setChordsPerBar] = React.useState<number>(1)
     const [ghostLine, setGhostLine] = React.useState<ILine | null>(null)
 
     React.useEffect(()=>{

@@ -147,7 +147,7 @@ const SongEditor: React.FC<SongEditorProps> = ({
             // 3. Clear ghost line
             setGhostLine(null);
 
-            // 4. Focus continues automatically
+            // 4. Focus continues automatically - TODO (since setghostLine is async, next chord might not be focused)
             const nextChordWithPath = findNextLeafChordWithPath(song, focusedId.id);
             if (nextChordWithPath) {
                 const nextId = chordPathToId(nextChordWithPath.path);
@@ -189,6 +189,19 @@ const SongEditor: React.FC<SongEditorProps> = ({
         }
     };
     
+    // UPDATE FOCUS ID BASED FOR GHOST LINE -TODO: extra click after ghost line inserted
+    // useEffect(() => {
+    //     if(!focusedId || focusedId.id === null || focusedId.id === undefined) return;
+    //     const lastLineIndex = song.sections[sectionIndex].lines.length - 1;
+    //     if (lineIndex === lastLineIndex && ghostLine) {
+    //         const nextChordWithPath = findNextLeafChordWithPath(song, focusedId.id);
+    //             if (nextChordWithPath) {
+    //                 const nextId = chordPathToId(nextChordWithPath.path);
+    //                 handleFocus(nextId, 'chord');
+    //             }
+    //     } 
+    // }, [ghostLine, song, handleFocus]);
+
     // const handleKey = (e , key) => {
     //     //Using the ids, we can determine where to add the new chord
 

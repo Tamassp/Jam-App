@@ -214,7 +214,7 @@ const Chord = ({
                 :
                 <>
                     {holdId === chordId &&
-                        <OptionSelectorVertical focusId={chordId} options={options} setOption={(option) => handleOption(option)} style={{position: 'absolute', left: 0, top: -48}}/>
+                        <OptionSelectorVertical focusId={{id: chordId, type: 'chord'}} options={options} setOption={(option) => handleOption(option)} style={{position: 'absolute', left: 0, top: -48}}/>
                     }
                     <Text style={[
                         styles.chordText, 

@@ -14,6 +14,14 @@ import SectionTitle from '../SectionTitle/SectionTitle'
 import { generateGhostLine, isLineFilled, isValidFocusedId } from '../../helpers/songEditor'
 import { ILine } from '../../interfaces/Interfaces'
 import { JSX } from 'react'
+import Animated, {
+  LinearTransition,
+  FadeInDown,
+  FadeOut,
+  StretchOutY,
+  FadeInUp,
+  FadeOutUp,
+} from 'react-native-reanimated';
 export interface SongSectionProps {
     songSectionId: string;
     sectionIndex: number;
@@ -38,7 +46,7 @@ const SongSection = ({
     newChord, 
     // isEditing = true,
     ...props }: SongSectionProps): JSX.Element => {
-    const { focusedId, handleFocus } = useFocus()
+    const { focusedId, handleFocus, handleSecondaryFocus } = useFocus()
     const { song, initialLine, barsPerLine, chordsPerBar, ghostLine, setGhostLine, setSong } = useSongContext()
     const lastLine = lines[lines.length - 1];
 
@@ -46,6 +54,9 @@ const SongSection = ({
 
     // const shouldShowGhostLine = isLineFilled(lastLine);
     // const ghostLine = shouldShowGhostLine ? generateGhostLine(barLength, chordsPerBar) : null;
+    // For animation, to prevent rerendering enter animation on every render
+    const [lastInsertedLineId, setLastInsertedLineId] = React.useState<string | null>(null);
+    const [lastDeletedLineId, setLastDeletedLineId] = React.useState<string | null>(null);
 
     const handleOnPress = () => {
         console.log('NEW SECTION');
@@ -100,36 +111,69 @@ const SongSection = ({
     const handleDeleteLine = React.useCallback((index: number) => {
         console.log("DELETE LINE")
         console.log(lines)
-        setSong(draft => {
-            // DELETE LINE BASED ON INDEX
-            draft.sections[songSectionId].lines.splice(index, 1);
-        })
-    },[lines])
+
+        const deletedId = lines[index].id;   // 👈 capture FIRST
+        setLastDeletedLineId(deletedId);
+        setLastInsertedLineId(null); // clear insert flag
+        
+        // remove AFTER exiting animation has a chance to attach
+        requestAnimationFrame(() => {
+            setSong(draft => {
+            const i = draft.sections[songSectionId].lines.findIndex(l => l.id === deletedId);
+            if (i !== -1) {
+                draft.sections[songSectionId].lines.splice(i, 1);
+            }
+            });
+        });
+    },[lines, songSectionId, setSong])
+
+    const newId = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
     const handleCopyLine = React.useCallback((index: number) => {
-        console.log("COPY LINE")
-        console.log("LINES: " + lines)
-        console.log("LINEID: " + index)
-        // MAKE A COPY OF THE LINE
-        const copiedLine = lines[index]
-        console.log(copiedLine)
+        const copiedId = newId();
+        setLastInsertedLineId(copiedId);
+        setLastDeletedLineId(null); // clear delete flag
+
         setSong(draft => {
-            // INSERT THE COPIED LINE INTO THE ARRAY
-            draft.sections[songSectionId].lines.splice(index, 0, copiedLine);
-        })
-    },[lines])
+            const original = draft.sections[songSectionId].lines[index];
+            const copied = {
+            ...original,
+            id: copiedId,
+            bars: original.bars.map(b => ({
+                ...b,
+                chords: JSON.parse(JSON.stringify(b.chords)),
+            })),
+            };
+            draft.sections[songSectionId].lines.splice(index + 1, 0, copied);
+        });
+    }, [songSectionId, setSong]);
+
+
+    // const handleCopyLine = React.useCallback((index: number) => {
+    //     console.log("COPY LINE")
+    //     console.log("LINES: " + lines)
+    //     console.log("LINEID: " + index)
+    //     // MAKE A COPY OF THE LINE
+    //     const copiedLine = lines[index]
+    //     console.log(copiedLine)
+    //     setSong(draft => {
+    //         // INSERT THE COPIED LINE INTO THE ARRAY
+    //         draft.sections[songSectionId].lines.splice(index, 0, copiedLine);
+    //     })
+    // },[lines])
 
     React.useEffect(() => {
         //CONSOLE LOG THE WHOLE LINE OBJECT
         console.log("LINES: " + JSON.stringify(lines))
     }, [lines])
 
-    const handleActivateGhostLine = () => {
+    const handleActivateGhostLine = React.useCallback(() => {
         setSong(draft => {
-        const newLine = generateGhostLine(barsPerLine, chordsPerBar);
-        draft.sections[sectionIndex].lines.push(newLine);
-        });
-    };
+            const newLine = generateGhostLine(barsPerLine, chordsPerBar);
+            draft.sections[sectionIndex].lines.push(newLine);
+            });
+        handleSecondaryFocus()
+    }, [barsPerLine, chordsPerBar]);
 
     // GENERATE A GHOST LINE IF THE LAST LINE IS FILLED
     React.useEffect(() => {
@@ -164,15 +208,29 @@ const SongSection = ({
 
             {lines.length > 0 && lines.map((line, index) => (
                 <View style={styles.lineContainer} key={`${sectionIndex}-${index}`}>
+                    <Animated.View
+                        key={line.id}                              // ✅ stable key
+                        style={styles.lineContainer}
+                        layout={LinearTransition.duration(140)}     // <-- snappy reflow
+                        entering={line.id === lastInsertedLineId ? FadeInUp.duration(140) : undefined}
+                        exiting={
+                            line.id === lastDeletedLineId
+                                ? FadeOutUp.duration(140)
+                                : undefined
+                        }
+                    >
                      <Line
-                        key={`${sectionIndex}-${index}`}
+                        //key={`${sectionIndex}-${index}`}
                         sectionIndex={sectionIndex}
                         lineIndex={index}
                         bars={line.bars}
                         lineLength={line.lineLength}
                         newChord={newChord}
+                        onCopyLine={handleCopyLine}
+                        onDeleteLine={handleDeleteLine}
                     />
-                    {focusedId && focusedId.id === `${songSectionId}` && focusedId.type === "edit" &&
+                    {/* // Copy, Delete, New Line Buttons switched to Swipable */}
+                    {/* {focusedId && focusedId.id === `${songSectionId}` && focusedId.type === "edit" &&
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                             <Pressable onPress={() => handleNewLine(index)} style={{backgroundColor: 'red', padding: 8, margin: 2}}>
                                 <Text>+</Text>
@@ -184,7 +242,8 @@ const SongSection = ({
                                 <Text>Copy</Text>
                             </Pressable>
                         </View>
-                    }
+                    } */}
+                    </Animated.View>
                 </View>
             ))}
 

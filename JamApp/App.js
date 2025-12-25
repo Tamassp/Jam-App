@@ -13,6 +13,8 @@ import Main from './src/pages/Main'
 import { SongProvider } from './src/context/SongContext/SongContext'
 import { ActiveChordProvider } from './src/context/SongContext/ActiveChordContext';
 import { PDFProvider } from './src/context/PDFContext'
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 // import StorybookUIRoot from './.storybook'
 //export { default } from './.storybook';
 
@@ -75,15 +77,17 @@ const App = () => {
   
 
   return (
-    <SongProvider>
-      <ActiveChordProvider>
-        <FocusProvider>
-          <PDFProvider>
-            <Main />
-          </PDFProvider>
-        </FocusProvider>
-      </ActiveChordProvider>
-    </SongProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}> // Required for react-native-gesture-handler
+      <SongProvider>
+        <ActiveChordProvider>
+          <FocusProvider>
+            <PDFProvider>
+              <Main />
+            </PDFProvider>
+          </FocusProvider>
+        </ActiveChordProvider>
+      </SongProvider>
+    </GestureHandlerRootView>
 
   );
 }
